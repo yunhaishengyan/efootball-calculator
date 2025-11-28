@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>汇率转换器（欧元版）</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #e9f7ef;
+            border-radius: 4px;
+            display: none;
+        }
+        .loading {
+            color: #666;
+            font-style: italic;
+        }
+        .error {
+            color: #dc3545;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>汇率转换器（欧元版）</h1>
+        <div class="form-group">
+            <label for="ouyuan">一组金币对应欧元价格:</label>
+            <input type="number" id="ouyuan" placeholder="请输入欧元价格" step="0.01">
+            <small id="yenInfo" class="loading">正在获取12000日元对应的欧元金额...</small>
+        </div>
+        <div class="form-group">
+            <label for="ouyuandanjia">欧元单价(每10欧元) 充值卡:</label>
+            <input type="number" id="ouyuandanjia" placeholder="请输入欧元单价" step="0.01">
+        </div>
+        <button onclick="calculate()">计算人民币金额</button>
+        <div id="result" class="result"></div>
+    </div>
+
+    <script>
+        // 页面加载时自动获取汇率
+        window.onload = function() {
+            fetchJPYToEURRate();
+        };
+
+        // 通过Cloudflare Worker代理获取汇率（不传递amount，后续计算12000日元）
+        function fetchJPYToEURRate() {
+            // 替换为你的Cloudflare Worker URL
+            const workerUrl = 'https://your-worker.your-username.workers.dev';
+            
+            // 构建请求参数（移除amount，仅传递必填项）
+            const params = new URLSearchParams({
+                from: 'JPY',       // 源货币：日元
+                to: 'EUR',         // 目标货币：欧元
+                version: '2'       // 版本号（固定值2）
+            });
+
+            // 发起请求到Cloudflare Worker
+            fetch(`${workerUrl}?${params.toString()}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`网络错误: HTTP ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                const infoElement = document.getElementById('yenInfo');
+                // 处理API响应
+                if (data.error_code !== 0) {
+                    infoElement.textContent = `获取汇率失败: ${data.reason || '未知错误'}`;
+                    infoElement.className = 'error';
+                    setDefaultEuroAmount(); // 失败时使用默认值
+                    return;
+                }
+
+                // 关键修改：从API获取1日元兑欧元的汇率，再乘以12000
+                // 假设API返回的是"1 JPY = X EUR"，提取X作为汇率
+                const exchangeRate = parseFloat(data.result[0].result); 
+                const amount = 12000; // 单独定义金额，不在请求参数中
+                const euroAmount = (exchangeRate * amount).toFixed(2); // 计算最终金额
+
+                // 填充结果
+                document.getElementById('ouyuan').value = euroAmount;
+                infoElement.textContent = `12000日元 = ${euroAmount}欧元（汇率：1日元 = ${exchangeRate.toFixed(6)}欧元）`;
+                infoElement.className = '';
+            })
+            .catch(error => {
+                console.error('请求异常:', error);
+                const infoElement = document.getElementById('yenInfo');
+                infoElement.textContent = `获取汇率失败: ${error.message}`;
+                infoElement.className = 'error';
+                setDefaultEuroAmount();
+            });
+        }
+
+        // 设置默认欧元金额（API失败时）
+        function setDefaultEuroAmount() {
+            const amount = 12000;
+            const fixedRate = 0.006; // 1日元≈0.006欧元
+            const euroAmount = (amount * fixedRate).toFixed(2);
+            document.getElementById('ouyuan').value = euroAmount;
+        }
+
+        // 计算人民币金额的函数（保持不变）
+        function calculate() {
+            const ouyuan = parseFloat(document.getElementById('ouyuan').value);
+            const ouyuandanjia = parseFloat(document.getElementById('ouyuandanjia').value);
+            
+            if (isNaN(ouyuan) || isNaN(ouyuandanjia)) {
+                alert('请输入有效的数字！');
+                return;
+            }
+            
+            const ouyuanToRMB = ouyuan / 10 * ouyuandanjia;
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = `<p>欧元对应人民币: ${ouyuanToRMB.toFixed(2)}</p>`;
+            resultDiv.style.display = 'block';
+        }
+    </script>
+</body>
+</html>
