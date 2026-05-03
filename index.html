@@ -2,9 +2,8 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8" />
-    <!-- 适配手机 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
-    <title>💰 eFootball 金币 → 人民币计算器</title>
+    <title>⚽ eFootball 金币换汇</title>
     <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -35,7 +34,6 @@
         .slider-container { margin-top: 12px; }
         input[type="range"] { width: 100%; height: 4px; background: #e2e8f0; border-radius: 4px; outline: none; appearance: none; }
         input[type="range"]::-webkit-slider-thumb { appearance: none; width: 24px; height: 24px; border-radius: 50%; background: #6366f1; cursor: pointer; border: 2px solid white; box-shadow: 0 1px 4px rgba(0,0,0,0.15); }
-        .slider-labels { display: flex; justify-content: space-between; font-size: 11px; color: #94a3b8; margin-top: 4px; }
         
         .result-box { background: #1e293b; border-radius: 16px; padding: 18px; color: white; text-align: center; margin-top: 12px; }
         .result-box .label { color: #94a3b8; font-size: 14px; display: block; margin-bottom: 6px; }
@@ -75,7 +73,8 @@
             const [jpyToEurRate, setJpyToEurRate] = React.useState(null);
             const [loading, setLoading] = React.useState(true);
             const [error, setError] = React.useState(null);
-            const [cnyPer10Eur, setCnyPer10Eur] = React.useState(75);
+            // 修复1：汇率输入改为字符串，允许用户完全删除
+            const [cnyPer10Eur, setCnyPer10Eur] = React.useState('75');
 
             const fetchRate = async () => {
                 setLoading(true);
@@ -108,8 +107,14 @@
                 const jpyAmount = coinAmount;
                 const rawEur = jpyAmount * (jpyToEurRate || 0);
                 const roundedEur = Math.ceil(rawEur / 10) * 10;
-                const rawCny = (rawEur / 10) * cnyPer10Eur;
-                const roundedCny = (roundedEur / 10) * cnyPer10Eur;
+                
+                // 修复1：将汇率字符串转为数字，处理空值
+                const cnyRate = parseFloat(cnyPer10Eur);
+                const validRate = isNaN(cnyRate) ? 0 : cnyRate;
+                
+                const rawCny = (rawEur / 10) * validRate;
+                const roundedCny = (roundedEur / 10) * validRate;
+                
                 return {
                     jpy: jpyAmount,
                     rawEur: rawEur,
@@ -159,10 +164,17 @@
                                 value={coinAmount}
                                 onChange={(e) => setCoinAmount(Number(e.target.value))}
                             />
-                            <div className="slider-labels">
-                                <span>0</span>
-                                <span>12,000</span>
-                                <span>50,000</span>
+                            {/* 修复2：精确对齐滑块标签 */}
+                            <div style={{ position: 'relative', width: '100%', height: '20px', marginTop: '4px' }}>
+                                <span style={{ position: 'absolute', left: '0%', transform: 'translateX(-50%)', fontSize: '11px', color: '#94a3b8' }}>
+                                    0
+                                </span>
+                                <span style={{ position: 'absolute', left: '24%', transform: 'translateX(-50%)', fontSize: '11px', color: '#94a3b8' }}>
+                                    12,000
+                                </span>
+                                <span style={{ position: 'absolute', left: '100%', transform: 'translateX(-50%)', fontSize: '11px', color: '#94a3b8' }}>
+                                    50,000
+                                </span>
                             </div>
                         </div>
                     </div>
@@ -171,11 +183,16 @@
                         <span className="label">💵 每 10 欧元 = ? 人民币</span>
                         <div className="input-group">
                             <input 
-                                type="number"
+                                type="text"
+                                inputMode="decimal"
                                 value={cnyPer10Eur}
-                                onChange={(e) => setCnyPer10Eur(Math.max(0, Number(e.target.value) || 0))}
-                                min="0"
-                                step="0.01"
+                                onChange={(e) => {
+                                    const val = e.target.value;
+                                    // 修复1：允许用户输入空字符串或合法数字字符
+                                    if (val === '' || /^-?\d*\.?\d*$/.test(val)) {
+                                        setCnyPer10Eur(val);
+                                    }
+                                }}
                             />
                             <span className="unit-label">元 / 10€</span>
                         </div>
@@ -211,7 +228,6 @@
                         </div>
                     </div>
 
-                    {/* 这里加入了 by guiqulaixi */}
                     <div className="footnote">
                         汇率数据：exchangerate-api.com · 自动刷新每5分钟<br />
                         <span className="byline">by guiqulaixi</span>
