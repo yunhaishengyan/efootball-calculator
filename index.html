@@ -3,125 +3,149 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
-    <title>⚽ eFootball 金币换汇</title>
-    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    
+    <title>⚽ eFootball 金币换汇 · 三源切换</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js" crossorigin></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js" crossorigin></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js" crossorigin></script>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { background: #f0f2f5; min-height: 100vh; display: flex; justify-content: center; align-items: center; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; padding: 12px; touch-action: manipulation; }
-        
         .app-container { max-width: 500px; width: 100%; background: white; border-radius: 20px; padding: 20px; box-shadow: 0 8px 30px rgba(0,0,0,0.08); }
-        
         header { text-align: center; margin-bottom: 18px; }
         header h1 { font-size: 20px; color: #1a1a2e; margin-bottom: 4px; }
         header .subtitle { color: #888; font-size: 13px; }
-        
-        .rate-banner { background: #eef2ff; border-radius: 12px; padding: 10px 14px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 6px; }
+        .rate-banner { background: #eef2ff; border-radius: 12px; padding: 10px 14px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; flex-wrap: wrap; gap: 6px; }
         .rate-banner .label { color: #4b5563; font-size: 13px; }
         .rate-banner .value { font-weight: 600; color: #1a1a2e; font-size: 14px; }
         .rate-banner .refresh-btn { background: #6366f1; color: white; border: none; padding: 6px 16px; border-radius: 20px; font-size: 13px; cursor: pointer; min-height: 36px; }
         .rate-banner .refresh-btn:disabled { opacity: 0.6; cursor: not-allowed; }
-        
+        .source-selector { display: flex; align-items: center; gap: 10px; background: #f8fafc; padding: 6px 12px; border-radius: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+        .source-selector label { font-size: 13px; color: #4b5563; }
+        .source-selector select { padding: 4px 8px; border-radius: 6px; border: 1px solid #d1d5db; background: white; font-size: 13px; }
+        .source-info { font-size: 12px; color: #4b5563; text-align: center; margin-top: 4px; }
         .card { background: #f8fafc; border-radius: 14px; padding: 16px; margin-bottom: 14px; }
         .card .label { font-size: 14px; color: #64748b; margin-bottom: 6px; display: block; }
-        
         .input-group { display: flex; align-items: center; border: 2px solid #e2e8f0; border-radius: 10px; overflow: hidden; background: white; }
         .input-group input { flex: 1; border: none; padding: 12px 14px; font-size: 18px; outline: none; background: transparent; min-height: 44px; }
         .input-group .unit-label { padding: 0 14px; color: #94a3b8; font-weight: 500; font-size: 14px; background: #f1f5f9; height: 100%; display: flex; align-items: center; }
-        
         .slider-container { margin-top: 12px; }
         input[type="range"] { width: 100%; height: 4px; background: #e2e8f0; border-radius: 4px; outline: none; appearance: none; }
         input[type="range"]::-webkit-slider-thumb { appearance: none; width: 24px; height: 24px; border-radius: 50%; background: #6366f1; cursor: pointer; border: 2px solid white; box-shadow: 0 1px 4px rgba(0,0,0,0.15); }
-        
         .result-box { background: #1e293b; border-radius: 16px; padding: 18px; color: white; text-align: center; margin-top: 12px; }
         .result-box .label { color: #94a3b8; font-size: 14px; display: block; margin-bottom: 6px; }
-        
         .result-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 6px; }
         .result-item { background: rgba(255,255,255,0.05); border-radius: 10px; padding: 10px; }
         .result-item .sub-label { font-size: 12px; color: #94a3b8; display: block; }
         .result-item .amount { font-size: 24px; font-weight: 700; color: #fbbf24; }
         .result-item .amount .currency { font-size: 16px; font-weight: 400; color: #fbbf24; margin-right: 3px; }
-        
         .detail-row { display: flex; justify-content: center; gap: 12px; font-size: 13px; color: #94a3b8; margin-top: 10px; flex-wrap: wrap; }
         .detail-row span { display: inline-flex; align-items: center; gap: 4px; }
         .detail-row .highlight { color: #e2e8f0; font-weight: 500; }
-        
         .footnote { text-align: center; color: #94a3b8; font-size: 11px; margin-top: 14px; padding-top: 10px; border-top: 1px solid #e2e8f0; line-height: 1.6; }
         .footnote .byline { color: #6366f1; font-weight: 500; font-size: 12px; }
-        
+        .error-banner { background: #fee2e2; color: #dc2626; padding: 8px 12px; border-radius: 8px; font-size: 13px; margin-bottom: 12px; text-align: center; }
+        .error-banner button { background: none; border: none; color: #6366f1; text-decoration: underline; cursor: pointer; font-weight: 500; }
         @media (max-width: 480px) {
-            .app-container { padding: 14px; }
-            header h1 { font-size: 18px; }
-            .result-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
-            .result-item .amount { font-size: 20px; }
-            .input-group input { font-size: 16px; }
-        }
-        @media (max-width: 360px) {
-            .result-grid { grid-template-columns: 1fr; }
+            .source-selector { flex-direction: column; align-items: stretch; }
         }
     </style>
 </head>
 <body>
-
     <div id="root"></div>
-
     <script type="text/babel">
         function App() {
             const [coinAmount, setCoinAmount] = React.useState(12000);
             const [jpyToEurRate, setJpyToEurRate] = React.useState(null);
             const [loading, setLoading] = React.useState(true);
             const [error, setError] = React.useState(null);
-            // 修复1：汇率输入改为字符串，允许用户完全删除
             const [cnyPer10Eur, setCnyPer10Eur] = React.useState('75');
+            const [sourceInfo, setSourceInfo] = React.useState('');
+            const [preferredSource, setPreferredSource] = React.useState('cloudflare');
+
+            const FALLBACK_RATE = 0.0054;
+
+            // 定义三个数据源
+            const API_SOURCES = {
+                cloudflare: {
+                    name: 'Cloudflare Pages (推荐)',
+                    url: 'https://latest.currency-api.pages.dev/v1/currencies/jpy.json',
+                    parse: (data) => data?.jpy?.eur
+                },
+                jsdelivr: {
+                    name: 'jsDelivr CDN (备选)',
+                    url: 'https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/jpy.json',
+                    parse: (data) => data?.jpy?.eur
+                },
+                exchangerate: {
+                    name: 'exchangerate.host (ECB)',
+                    url: 'https://api.exchangerate.host/latest?base=JPY&symbols=EUR',
+                    parse: (data) => data?.rates?.EUR
+                }
+            };
+
+            const getSourcesInOrder = () => {
+                const preferred = preferredSource;
+                const allKeys = Object.keys(API_SOURCES);
+                const others = allKeys.filter(k => k !== preferred);
+                return [preferred, ...others];
+            };
 
             const fetchRate = async () => {
                 setLoading(true);
                 setError(null);
-                try {
-                    const res = await fetch('https://api.exchangerate-api.com/v4/latest/JPY');
-                    if (!res.ok) throw new Error('网络请求失败');
-                    const data = await res.json();
-                    const eurRate = data.rates.EUR;
-                    if (eurRate) {
-                        setJpyToEurRate(eurRate);
-                    } else {
-                        throw new Error('未获取到 EUR 汇率');
+                setSourceInfo('');
+
+                const order = getSourcesInOrder();
+                let usedSource = null;
+
+                for (const key of order) {
+                    const api = API_SOURCES[key];
+                    try {
+                        const controller = new AbortController();
+                        const timeoutId = setTimeout(() => controller.abort(), 6000);
+                        const res = await fetch(api.url, { signal: controller.signal });
+                        clearTimeout(timeoutId);
+                        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                        const data = await res.json();
+                        const rate = api.parse(data);
+                        if (typeof rate === 'number' && rate > 0) {
+                            setJpyToEurRate(rate);
+                            usedSource = api.name;
+                            setSourceInfo(`✅ 数据来源: ${api.name}`);
+                            setLoading(false);
+                            return;
+                        } else {
+                            throw new Error('无效的汇率数据');
+                        }
+                    } catch (err) {
+                        console.warn(`API "${api.name}" 失败:`, err.message);
+                        // 继续尝试下一个
                     }
-                } catch (err) {
-                    setError(err.message);
-                    setJpyToEurRate(0.0064);
-                } finally {
-                    setLoading(false);
                 }
+
+                // 所有源都失败，使用备选
+                setJpyToEurRate(FALLBACK_RATE);
+                setSourceInfo(`⚠️ 所有 API 失败，使用备选汇率 ${FALLBACK_RATE}`);
+                setError('所有汇率源均不可用，已切换至备选汇率');
+                setLoading(false);
             };
 
             React.useEffect(() => {
                 fetchRate();
                 const timer = setInterval(fetchRate, 300000);
                 return () => clearInterval(timer);
-            }, []);
+            }, [preferredSource]);
 
             const calculate = () => {
-                const jpyAmount = coinAmount;
-                const rawEur = jpyAmount * (jpyToEurRate || 0);
+                const jpyAmount = coinAmount || 0;
+                const rate = jpyToEurRate ?? FALLBACK_RATE;
+                const rawEur = jpyAmount * rate;
                 const roundedEur = Math.ceil(rawEur / 10) * 10;
-                
-                // 修复1：将汇率字符串转为数字，处理空值
                 const cnyRate = parseFloat(cnyPer10Eur);
-                const validRate = isNaN(cnyRate) ? 0 : cnyRate;
-                
+                const validRate = isNaN(cnyRate) || cnyRate < 0 ? 0 : cnyRate;
                 const rawCny = (rawEur / 10) * validRate;
                 const roundedCny = (roundedEur / 10) * validRate;
-                
-                return {
-                    jpy: jpyAmount,
-                    rawEur: rawEur,
-                    roundedEur: roundedEur,
-                    rawCny: rawCny,
-                    roundedCny: roundedCny
-                };
+                return { jpy: jpyAmount, rawEur, roundedEur, rawCny, roundedCny };
             };
 
             const result = calculate();
@@ -133,30 +157,59 @@
                         <div className="subtitle">12000 金币 = 12000 日元 · 欧元向上取整</div>
                     </header>
 
+                    {error && (
+                        <div className="error-banner">
+                            ⚠️ {error} <button onClick={fetchRate}>重试</button>
+                        </div>
+                    )}
+
                     <div className="rate-banner">
                         <span className="label">💱 日元 → 欧元</span>
                         <span className="value">
-                            {loading ? '加载中...' : error ? '⚠️ 备选' : `1 JPY = ${jpyToEurRate?.toFixed(6)} EUR`}
+                            {loading ? '加载中...' :
+                             `1 JPY = ${(jpyToEurRate ?? FALLBACK_RATE).toFixed(6)} EUR`}
                         </span>
                         <button className="refresh-btn" onClick={fetchRate} disabled={loading}>
                             {loading ? '↻' : '刷新'}
                         </button>
                     </div>
 
+                    {/* 三源切换下拉框 */}
+                    <div className="source-selector">
+                        <label htmlFor="sourceSelect">📡 首选数据源：</label>
+                        <select
+                            id="sourceSelect"
+                            value={preferredSource}
+                            onChange={(e) => setPreferredSource(e.target.value)}
+                            disabled={loading}
+                        >
+                            <option value="cloudflare">Cloudflare Pages (推荐)</option>
+                            <option value="jsdelivr">jsDelivr CDN (备选)</option>
+                            <option value="exchangerate">exchangerate.host (ECB)</option>
+                        </select>
+                        <span style={{ fontSize: '12px', color: '#6b7280' }}>
+                            (切换后自动刷新)
+                        </span>
+                    </div>
+                    <div className="source-info">{sourceInfo}</div>
+
                     <div className="card">
                         <span className="label">🪙 金币数量</span>
                         <div className="input-group">
-                            <input 
+                            <input
                                 type="number"
                                 value={coinAmount}
-                                onChange={(e) => setCoinAmount(Math.max(0, Number(e.target.value) || 0))}
+                                onChange={(e) => {
+                                    const val = parseInt(e.target.value, 10);
+                                    setCoinAmount(isNaN(val) || val < 0 ? 0 : val);
+                                }}
                                 min="0"
                                 step="100"
                             />
                             <span className="unit-label">金币</span>
                         </div>
                         <div className="slider-container">
-                            <input 
+                            <input
                                 type="range"
                                 min="0"
                                 max="50000"
@@ -164,17 +217,10 @@
                                 value={coinAmount}
                                 onChange={(e) => setCoinAmount(Number(e.target.value))}
                             />
-                            {/* 修复2：精确对齐滑块标签 */}
                             <div style={{ position: 'relative', width: '100%', height: '20px', marginTop: '4px' }}>
-                                <span style={{ position: 'absolute', left: '0%', transform: 'translateX(-50%)', fontSize: '11px', color: '#94a3b8' }}>
-                                    0
-                                </span>
-                                <span style={{ position: 'absolute', left: '24%', transform: 'translateX(-50%)', fontSize: '11px', color: '#94a3b8' }}>
-                                    12,000
-                                </span>
-                                <span style={{ position: 'absolute', left: '100%', transform: 'translateX(-50%)', fontSize: '11px', color: '#94a3b8' }}>
-                                    50,000
-                                </span>
+                                <span style={{ position: 'absolute', left: '0%', transform: 'translateX(-50%)', fontSize: '11px', color: '#94a3b8' }}>0</span>
+                                <span style={{ position: 'absolute', left: '24%', transform: 'translateX(-50%)', fontSize: '11px', color: '#94a3b8' }}>12,000</span>
+                                <span style={{ position: 'absolute', left: '100%', transform: 'translateX(-50%)', fontSize: '11px', color: '#94a3b8' }}>50,000</span>
                             </div>
                         </div>
                     </div>
@@ -182,17 +228,17 @@
                     <div className="card">
                         <span className="label">💵 每 10 欧元 = ? 人民币</span>
                         <div className="input-group">
-                            <input 
+                            <input
                                 type="text"
                                 inputMode="decimal"
                                 value={cnyPer10Eur}
                                 onChange={(e) => {
                                     const val = e.target.value;
-                                    // 修复1：允许用户输入空字符串或合法数字字符
                                     if (val === '' || /^-?\d*\.?\d*$/.test(val)) {
                                         setCnyPer10Eur(val);
                                     }
                                 }}
+                                placeholder="例如 75"
                             />
                             <span className="unit-label">元 / 10€</span>
                         </div>
@@ -206,17 +252,11 @@
                         <div className="result-grid">
                             <div className="result-item">
                                 <span className="sub-label">原始转换</span>
-                                <div className="amount">
-                                    <span className="currency">¥</span>
-                                    {result.rawCny.toFixed(2)}
-                                </div>
+                                <div className="amount"><span className="currency">¥</span>{result.rawCny.toFixed(2)}</div>
                             </div>
                             <div className="result-item">
                                 <span className="sub-label">向上取整后</span>
-                                <div className="amount">
-                                    <span className="currency">¥</span>
-                                    {result.roundedCny.toFixed(2)}
-                                </div>
+                                <div className="amount"><span className="currency">¥</span>{result.roundedCny.toFixed(2)}</div>
                             </div>
                         </div>
                         <div className="detail-row">
@@ -229,7 +269,7 @@
                     </div>
 
                     <div className="footnote">
-                        汇率数据：exchangerate-api.com · 自动刷新每5分钟<br />
+                        汇率数据：自动尝试首选源，失败则自动降级 · 备选 {FALLBACK_RATE}<br />
                         <span className="byline">by guiqulaixi</span>
                     </div>
                 </div>
@@ -239,6 +279,5 @@
         const root = ReactDOM.createRoot(document.getElementById('root'));
         root.render(<App />);
     </script>
-
 </body>
 </html>
