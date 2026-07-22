@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
-    <title>⚽ eFootball 金币换汇 </title>
+    <title>⚽ eFootball 金币换汇 · 双模 + 抽卡规划</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js" crossorigin></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js" crossorigin></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js" crossorigin></script>
@@ -520,4 +520,138 @@
                         <div className="slider-container">
                             <input
                                 type="range"
-               
+                                min="0"
+                                max="50000"
+                                step="100"
+                                value={coinAmount}
+                                onChange={(e) => setCoinAmount(Number(e.target.value))}
+                            />
+                            <div style={{ position: 'relative', width: '100%', height: '20px', marginTop: '4px' }}>
+                                <span style={{ position: 'absolute', left: '0%', transform: 'translateX(-50%)', fontSize: '11px', color: '#94a3b8' }}>0</span>
+                                <span style={{ position: 'absolute', left: '24%', transform: 'translateX(-50%)', fontSize: '11px', color: '#94a3b8' }}>12,000</span>
+                                <span style={{ position: 'absolute', left: '100%', transform: 'translateX(-50%)', fontSize: '11px', color: '#94a3b8' }}>50,000</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* 每10欧元=？人民币（仅在欧元卡显示） */}
+                    {activeTab === 'euro' && (
+                        <div className="card">
+                            <span className="label">💵 每 10 欧元 = ? 人民币</span>
+                            <div className="input-group">
+                                <input
+                                    type="text"
+                                    inputMode="decimal"
+                                    value={cnyPer10Eur}
+                                    onChange={(e) => {
+                                        const val = e.target.value;
+                                        if (val === '' || /^-?\d*\.?\d*$/.test(val)) {
+                                            setCnyPer10Eur(val);
+                                        }
+                                    }}
+                                    placeholder="例如 75"
+                                />
+                                <span className="unit-label">元 / 10€</span>
+                            </div>
+                            <div style={{ fontSize: '12px', color: '#94a3b8', marginTop: '6px' }}>
+                                例如：75 表示 10欧元 = 75元人民币
+                            </div>
+                        </div>
+                    )}
+
+                    {/* 日元特惠显示汇率提示 */}
+                    {activeTab === 'yen' && (
+                        <div style={{ fontSize: '13px', color: '#64748b', textAlign: 'center', marginBottom: '12px' }}>
+                            💡 当前 1 日元 ≈ {(yenResult.jpyToCny || 0).toFixed(6)} 人民币
+                            <span style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginTop: '4px' }}>
+                                （基于欧元卡中“每10欧元”的设定自动换算）
+                            </span>
+                        </div>
+                    )}
+
+                    {/* 结果卡片 */}
+                    <div className="result-box">
+                        <span className="label">
+                            {activeTab === 'euro' ? '💳 需要支付的人民币' : '💴 兑换可得人民币'}
+                        </span>
+
+                        {activeTab === 'euro' ? (
+                            // 欧元卡双结果
+                            <>
+                                <div className="result-grid">
+                                    <div className="result-item">
+                                        <span className="sub-label">原始转换</span>
+                                        <div className="amount"><span className="currency">¥</span>{euroResult.rawCny.toFixed(2)}</div>
+                                    </div>
+                                    <div className="result-item">
+                                        <span className="sub-label">向上取整后</span>
+                                        <div className="amount"><span className="currency">¥</span>{euroResult.roundedCny.toFixed(2)}</div>
+                                    </div>
+                                </div>
+                                <div className="detail-row">
+                                    <span>💶 原始欧元：<span className="highlight">{euroResult.rawEur.toFixed(2)}</span></span>
+                                    <span>🔝 取整后：<span className="highlight">{euroResult.roundedEur}</span> EUR</span>
+                                </div>
+                                <div className="note" style={{ fontSize: '12px', color: '#64748b', marginTop: '6px' }}>
+                                    {euroResult.jpy.toLocaleString()} 日元 → {euroResult.roundedEur} 欧元（向上取整）→ 计算人民币
+                                </div>
+                            </>
+                        ) : (
+                            // 日元特惠单结果
+                            <>
+                                <div className="result-single">
+                                    <span className="currency">¥</span>{yenResult.totalCny.toFixed(2)}
+                                </div>
+                                <div className="detail-row">
+                                    <span>
+                                        💴 {yenResult.jpy.toLocaleString()} 日元 × {(yenResult.jpyToCny || 0).toFixed(6)} = ¥ {yenResult.totalCny.toFixed(2)}
+                                    </span>
+                                </div>
+                            </>
+                        )}
+                    </div>
+
+                    {/* 抽卡规划模块 */}
+                    <div className="plan-box">
+                        <div className="plan-header">
+                            <span className="plan-title">📋 抽卡规划</span>
+                            <span className="plan-period">📅 {getPlanPeriod()}</span>
+                        </div>
+                        <div className="plan-input-group">
+                            <input
+                                type="number"
+                                value={planPulls}
+                                onChange={(e) => {
+                                    const val = parseInt(e.target.value, 10);
+                                    setPlanPulls(isNaN(val) || val < 0 ? 0 : val);
+                                }}
+                                min="0"
+                                step="1"
+                                placeholder="输入计划抽数"
+                            />
+                            <span className="unit-label">抽</span>
+                        </div>
+                        <div className="plan-actions">
+                            <span className="saved-tip">
+                                {lastSaved ? `✅ 已保存 (${lastSaved.toLocaleTimeString()})` : '⏳ 未保存'}
+                            </span>
+                            <button className="clear-btn" onClick={() => setPlanPulls(0)}>
+                                清空规划
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* 页脚 */}
+                    <div className="footnote">
+                        汇率数据：自动尝试首选源，失败则自动降级 · 备选 {FALLBACK_RATE}<br />
+                        <span className="byline">by guiqulaixi</span>
+                    </div>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
