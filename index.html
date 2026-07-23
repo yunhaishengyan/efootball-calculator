@@ -503,385 +503,6 @@
                     <div className="source-info">{sourceInfo}</div>
 
                     <div className="card">
-                        <span className="label
-        .slider-container { margin-top: 12px; }
-        input[type="range"] {
-            width: 100%;
-            height: 4px;
-            background: #e2e8f0;
-            border-radius: 4px;
-            outline: none;
-            appearance: none;
-        }
-        input[type="range"]::-webkit-slider-thumb {
-            appearance: none;
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            background: #6366f1;
-            cursor: pointer;
-            border: 2px solid white;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.15);
-        }
-
-        .result-box {
-            background: #1e293b;
-            border-radius: 16px;
-            padding: 18px;
-            color: white;
-            text-align: center;
-            margin-top: 12px;
-        }
-        .result-box .label { color: #94a3b8; font-size: 14px; display: block; margin-bottom: 6px; }
-        .result-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-top: 6px;
-        }
-        .result-item {
-            background: rgba(255,255,255,0.05);
-            border-radius: 10px;
-            padding: 10px;
-        }
-        .result-item .sub-label { font-size: 12px; color: #94a3b8; display: block; }
-        .result-item .amount {
-            font-size: 24px;
-            font-weight: 700;
-            color: #fbbf24;
-        }
-        .result-item .amount .currency { font-size: 16px; font-weight: 400; color: #fbbf24; margin-right: 3px; }
-        .result-single {
-            font-size: 34px;
-            font-weight: 700;
-            color: #fbbf24;
-            padding: 6px 0;
-        }
-        .result-single .currency { font-size: 22px; font-weight: 400; margin-right: 4px; }
-
-        .detail-row {
-            display: flex;
-            justify-content: center;
-            gap: 12px;
-            font-size: 13px;
-            color: #94a3b8;
-            margin-top: 10px;
-            flex-wrap: wrap;
-        }
-        .detail-row span { display: inline-flex; align-items: center; gap: 4px; }
-        .detail-row .highlight { color: #e2e8f0; font-weight: 500; }
-
-        .footnote {
-            text-align: center;
-            color: #94a3b8;
-            font-size: 11px;
-            margin-top: 14px;
-            padding-top: 10px;
-            border-top: 1px solid #e2e8f0;
-            line-height: 1.6;
-        }
-        .footnote .byline { color: #6366f1; font-weight: 500; font-size: 12px; }
-
-        .error-banner {
-            background: #fee2e2;
-            color: #dc2626;
-            padding: 8px 12px;
-            border-radius: 8px;
-            font-size: 13px;
-            margin-bottom: 12px;
-            text-align: center;
-        }
-        .error-banner button {
-            background: none;
-            border: none;
-            color: #6366f1;
-            text-decoration: underline;
-            cursor: pointer;
-            font-weight: 500;
-        }
-
-        /* 抽卡规划模块 */
-        .plan-box {
-            background: #f8fafc;
-            border-radius: 14px;
-            padding: 16px;
-            margin-top: 14px;
-        }
-        .plan-box .plan-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 6px;
-        }
-        .plan-box .plan-title {
-            font-weight: 600;
-            color: #1a1a2e;
-            font-size: 15px;
-        }
-        .plan-box .plan-period {
-            font-size: 12px;
-            color: #64748b;
-        }
-        .plan-input-group {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .plan-input-group input {
-            flex: 1;
-            border: 2px solid #e2e8f0;
-            border-radius: 10px;
-            padding: 10px 14px;
-            font-size: 18px;
-            outline: none;
-            background: white;
-            min-height: 44px;
-        }
-        .plan-input-group .unit-label {
-            color: #94a3b8;
-            font-weight: 500;
-            font-size: 14px;
-        }
-        .plan-actions {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-top: 8px;
-            font-size: 12px;
-            color: #94a3b8;
-        }
-        .plan-actions .clear-btn {
-            background: none;
-            border: none;
-            color: #dc2626;
-            text-decoration: underline;
-            cursor: pointer;
-            font-size: 12px;
-        }
-        .plan-actions .saved-tip {
-            color: #22c55e;
-        }
-
-        @media (max-width: 480px) {
-            .source-selector { flex-direction: column; align-items: stretch; }
-            .tab-btn { font-size: 14px; padding: 8px 0; }
-        }
-    </style>
-</head>
-<body>
-    <div id="root"></div>
-
-    <script type="text/babel">
-        function App() {
-            // ---------- 原有状态 ----------
-            const [coinAmount, setCoinAmount] = React.useState(12000);
-            const [jpyToEurRate, setJpyToEurRate] = React.useState(null);
-            const [loading, setLoading] = React.useState(true);
-            const [error, setError] = React.useState(null);
-            const [cnyPer10Eur, setCnyPer10Eur] = React.useState('75');
-            const [sourceInfo, setSourceInfo] = React.useState('');
-            const [preferredSource, setPreferredSource] = React.useState('cloudflare');
-
-            // ---------- 新增状态 ----------
-            const [activeTab, setActiveTab] = React.useState('euro'); // 'euro' 或 'yen'
-            const [planPulls, setPlanPulls] = React.useState(() => {
-                // 从 localStorage 读取抽卡规划
-                const saved = localStorage.getItem('planPulls');
-                return saved ? parseInt(saved, 10) || 0 : 0;
-            });
-            const [lastSaved, setLastSaved] = React.useState(() => {
-                const time = localStorage.getItem('planPullsTime');
-                return time ? new Date(parseInt(time, 10)) : null;
-            });
-
-            const FALLBACK_RATE = 0.0054;
-
-            // ---------- 数据源配置（不变） ----------
-            const API_SOURCES = {
-                cloudflare: {
-                    name: 'Cloudflare Pages (推荐)',
-                    url: 'https://latest.currency-api.pages.dev/v1/currencies/jpy.json',
-                    parse: (data) => data?.jpy?.eur
-                },
-                jsdelivr: {
-                    name: 'jsDelivr CDN (备选)',
-                    url: 'https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/jpy.json',
-                    parse: (data) => data?.jpy?.eur
-                },
-                exchangerate: {
-                    name: 'exchangerate.host (ECB)',
-                    url: 'https://api.exchangerate.host/latest?base=JPY&symbols=EUR',
-                    parse: (data) => data?.rates?.EUR
-                }
-            };
-
-            const getSourcesInOrder = () => {
-                const preferred = preferredSource;
-                const allKeys = Object.keys(API_SOURCES);
-                const others = allKeys.filter(k => k !== preferred);
-                return [preferred, ...others];
-            };
-
-            const fetchRate = async () => {
-                setLoading(true);
-                setError(null);
-                setSourceInfo('');
-
-                const order = getSourcesInOrder();
-                let usedSource = null;
-
-                for (const key of order) {
-                    const api = API_SOURCES[key];
-                    try {
-                        const controller = new AbortController();
-                        const timeoutId = setTimeout(() => controller.abort(), 6000);
-                        const res = await fetch(api.url, { signal: controller.signal });
-                        clearTimeout(timeoutId);
-                        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-                        const data = await res.json();
-                        const rate = api.parse(data);
-                        if (typeof rate === 'number' && rate > 0) {
-                            setJpyToEurRate(rate);
-                            usedSource = api.name;
-                            setSourceInfo(`✅ 数据来源: ${api.name}`);
-                            setLoading(false);
-                            return;
-                        } else {
-                            throw new Error('无效的汇率数据');
-                        }
-                    } catch (err) {
-                        console.warn(`API "${api.name}" 失败:`, err.message);
-                    }
-                }
-
-                setJpyToEurRate(FALLBACK_RATE);
-                setSourceInfo(`⚠️ 所有 API 失败，使用备选汇率 ${FALLBACK_RATE}`);
-                setError('所有汇率源均不可用，已切换至备选汇率');
-                setLoading(false);
-            };
-
-            React.useEffect(() => {
-                fetchRate();
-                const timer = setInterval(fetchRate, 300000);
-                return () => clearInterval(timer);
-            }, [preferredSource]);
-
-            // ---------- 抽卡规划本地存储 ----------
-            React.useEffect(() => {
-                localStorage.setItem('planPulls', String(planPulls));
-                localStorage.setItem('planPullsTime', String(Date.now()));
-                setLastSaved(new Date());
-            }, [planPulls]);
-
-            // ---------- 计算逻辑 ----------
-            const calculateEuro = () => {
-                const jpyAmount = coinAmount || 0;
-                const rate = jpyToEurRate ?? FALLBACK_RATE;
-                const rawEur = jpyAmount * rate;
-                const roundedEur = Math.ceil(rawEur / 10) * 10;
-                const cnyRate = parseFloat(cnyPer10Eur);
-                const validRate = isNaN(cnyRate) || cnyRate < 0 ? 0 : cnyRate;
-                const rawCny = (rawEur / 10) * validRate;
-                const roundedCny = (roundedEur / 10) * validRate;
-                return { jpy: jpyAmount, rawEur, roundedEur, rawCny, roundedCny };
-            };
-
-            const calculateYen = () => {
-                const jpyAmount = coinAmount || 0;
-                const rate = jpyToEurRate ?? FALLBACK_RATE;
-                const cnyRate = parseFloat(cnyPer10Eur);
-                const validRate = isNaN(cnyRate) || cnyRate < 0 ? 0 : cnyRate;
-                // 1 JPY = (rate) EUR, 1 EUR = (cnyRate/10) CNY => 1 JPY = rate * (cnyRate/10) CNY
-                const jpyToCny = rate * (validRate / 10);
-                const totalCny = jpyAmount * jpyToCny;
-                return { jpy: jpyAmount, totalCny, jpyToCny };
-            };
-
-            const euroResult = calculateEuro();
-            const yenResult = calculateYen();
-
-            // ---------- 辅助函数：本周四 ~ 下周四 ----------
-            const getPlanPeriod = () => {
-                const now = new Date();
-                const day = now.getDay(); // 0=周日
-                // 计算本周四（周四=4）
-                const diffToThu = (day <= 4) ? (4 - day) : (4 + 7 - day);
-                const thu = new Date(now);
-                thu.setDate(now.getDate() + diffToThu);
-                thu.setHours(0,0,0,0);
-                const nextThu = new Date(thu);
-                nextThu.setDate(thu.getDate() + 7);
-                const format = (d) => `${d.getMonth()+1}/${d.getDate()}`;
-                return `${format(thu)} ~ ${format(nextThu)}`;
-            };
-
-            // ---------- 渲染 JSX ----------
-            return (
-                <div className="app-container">
-                    {/* 头部 */}
-                    <header>
-                        <h1>{activeTab === 'euro' ? '⚽ eFootball 金币换汇' : '⚽ eFootball 日元特惠'}</h1>
-                        <div className="subtitle">
-                            {activeTab === 'euro'
-                                ? '12000 金币 = 12000 日元 · 欧元向上取整'
-                                : '直接兑换 · 按实时汇率结算，无取整'}
-                        </div>
-                    </header>
-
-                    {/* Tab 切换 */}
-                    <div className="tab-bar">
-                        <button
-                            className={`tab-btn ${activeTab === 'euro' ? 'active' : ''}`}
-                            onClick={() => setActiveTab('euro')}
-                        >
-                            💳 欧元卡
-                        </button>
-                        <button
-                            className={`tab-btn ${activeTab === 'yen' ? 'active' : ''}`}
-                            onClick={() => setActiveTab('yen')}
-                        >
-                            🎌 日元特惠
-                        </button>
-                    </div>
-
-                    {/* 错误横幅 */}
-                    {error && (
-                        <div className="error-banner">
-                            ⚠️ {error} <button onClick={fetchRate}>重试</button>
-                        </div>
-                    )}
-
-                    {/* 汇率横幅 */}
-                    <div className="rate-banner">
-                        <span className="label">💱 日元 → 欧元</span>
-                        <span className="value">
-                            {loading ? '加载中...' :
-                             `1 JPY = ${(jpyToEurRate ?? FALLBACK_RATE).toFixed(6)} EUR`}
-                        </span>
-                        <button className="refresh-btn" onClick={fetchRate} disabled={loading}>
-                            {loading ? '↻' : '刷新'}
-                        </button>
-                    </div>
-
-                    {/* 数据源切换 */}
-                    <div className="source-selector">
-                        <label htmlFor="sourceSelect">📡 首选数据源：</label>
-                        <select
-                            id="sourceSelect"
-                            value={preferredSource}
-                            onChange={(e) => setPreferredSource(e.target.value)}
-                            disabled={loading}
-                        >
-                            <option value="cloudflare">Cloudflare Pages (推荐)</option>
-                            <option value="jsdelivr">jsDelivr CDN (备选)</option>
-                            <option value="exchangerate">exchangerate.host (ECB)</option>
-                        </select>
-                        <span style={{ fontSize: '12px', color: '#6b7280' }}>(切换后自动刷新)</span>
-                    </div>
-                    <div className="source-info">{sourceInfo}</div>
-
-                    {/* 输入卡片（共享金额） */}
-                    <div className="card">
                         <span className="label">
                             {activeTab === 'euro' ? '🪙 金币数量' : '🎌 日元金额'}
                         </span>
@@ -889,12 +510,10 @@
                             <input
                                 type="number"
                                 value={coinAmount}
-                                onChange={(e) => {
-                                    const val = parseInt(e.target.value, 10);
-                                    setCoinAmount(isNaN(val) || val < 0 ? 0 : val);
-                                }}
+                                onChange={handleCoinChange}
                                 min="0"
                                 step="100"
+                                placeholder="输入数量"
                             />
                             <span className="unit-label">
                                 {activeTab === 'euro' ? '金币' : '日元'}
@@ -906,7 +525,7 @@
                                 min="0"
                                 max="50000"
                                 step="100"
-                                value={coinAmount}
+                                value={coinAmount === '' ? 0 : coinAmount}
                                 onChange={(e) => setCoinAmount(Number(e.target.value))}
                             />
                             <div style={{ position: 'relative', width: '100%', height: '20px', marginTop: '4px' }}>
@@ -917,7 +536,6 @@
                         </div>
                     </div>
 
-                    {/* 每10欧元=？人民币（仅在欧元卡显示） */}
                     {activeTab === 'euro' && (
                         <div className="card">
                             <span className="label">💵 每 10 欧元 = ? 人民币</span>
@@ -926,12 +544,7 @@
                                     type="text"
                                     inputMode="decimal"
                                     value={cnyPer10Eur}
-                                    onChange={(e) => {
-                                        const val = e.target.value;
-                                        if (val === '' || /^-?\d*\.?\d*$/.test(val)) {
-                                            setCnyPer10Eur(val);
-                                        }
-                                    }}
+                                    onChange={handleCnyPer10EurChange}
                                     placeholder="例如 75"
                                 />
                                 <span className="unit-label">元 / 10€</span>
@@ -942,24 +555,21 @@
                         </div>
                     )}
 
-                    {/* 日元特惠显示汇率提示 */}
                     {activeTab === 'yen' && (
                         <div style={{ fontSize: '13px', color: '#64748b', textAlign: 'center', marginBottom: '12px' }}>
-                            💡 当前 1 日元 ≈ {(yenResult.jpyToCny || 0).toFixed(6)} 人民币
+                            💡 当前 1 日元 ≈ {(jpyToCnyRate ?? FALLBACK_JPY_CNY).toFixed(6)} 人民币
                             <span style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginTop: '4px' }}>
-                                （基于欧元卡中“每10欧元”的设定自动换算）
+                                （实时汇率自动获取，无需手动输入）
                             </span>
                         </div>
                     )}
 
-                    {/* 结果卡片 */}
                     <div className="result-box">
                         <span className="label">
                             {activeTab === 'euro' ? '💳 需要支付的人民币' : '💴 兑换可得人民币'}
                         </span>
 
                         {activeTab === 'euro' ? (
-                            // 欧元卡双结果
                             <>
                                 <div className="result-grid">
                                     <div className="result-item">
@@ -980,53 +590,21 @@
                                 </div>
                             </>
                         ) : (
-                            // 日元特惠单结果
                             <>
                                 <div className="result-single">
                                     <span className="currency">¥</span>{yenResult.totalCny.toFixed(2)}
                                 </div>
                                 <div className="detail-row">
                                     <span>
-                                        💴 {yenResult.jpy.toLocaleString()} 日元 × {(yenResult.jpyToCny || 0).toFixed(6)} = ¥ {yenResult.totalCny.toFixed(2)}
+                                        💴 {yenResult.jpy.toLocaleString()} 日元 × {(yenResult.rate || 0).toFixed(6)} = ¥ {yenResult.totalCny.toFixed(2)}
                                     </span>
                                 </div>
                             </>
                         )}
                     </div>
 
-                    {/* 抽卡规划模块 */}
-                    <div className="plan-box">
-                        <div className="plan-header">
-                            <span className="plan-title">📋 抽卡规划</span>
-                            <span className="plan-period">📅 {getPlanPeriod()}</span>
-                        </div>
-                        <div className="plan-input-group">
-                            <input
-                                type="number"
-                                value={planPulls}
-                                onChange={(e) => {
-                                    const val = parseInt(e.target.value, 10);
-                                    setPlanPulls(isNaN(val) || val < 0 ? 0 : val);
-                                }}
-                                min="0"
-                                step="1"
-                                placeholder="输入计划抽数"
-                            />
-                            <span className="unit-label">抽</span>
-                        </div>
-                        <div className="plan-actions">
-                            <span className="saved-tip">
-                                {lastSaved ? `✅ 已保存 (${lastSaved.toLocaleTimeString()})` : '⏳ 未保存'}
-                            </span>
-                            <button className="clear-btn" onClick={() => setPlanPulls(0)}>
-                                清空规划
-                            </button>
-                        </div>
-                    </div>
-
-                    {/* 页脚 */}
                     <div className="footnote">
-                        汇率数据：自动尝试首选源，失败则自动降级 · 备选 {FALLBACK_RATE}<br />
+                        汇率数据：优先直接获取 JPY→CNY，若不可用则间接换算 · 备选 JPY/CNY: {FALLBACK_JPY_CNY}<br />
                         <span className="byline">by guiqulaixi</span>
                     </div>
                 </div>
