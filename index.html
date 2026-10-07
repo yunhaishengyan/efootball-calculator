@@ -120,25 +120,26 @@
             align-items: center;
         }
 
-        .slider-container { margin-top: 12px; }
-        input[type="range"] {
-            width: 100%;
-            height: 4px;
-            background: #e2e8f0;
-            border-radius: 4px;
-            outline: none;
-            appearance: none;
-        }
-        input[type="range"]::-webkit-slider-thumb {
-            appearance: none;
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            background: #6366f1;
+        .quick-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+        .quick-chip {
+            flex: 1 1 64px;
+            min-height: 40px;
+            border: 1px solid #d1d5db;
+            background: white;
+            border-radius: 8px;
+            font-size: 13px;
+            color: #4b5563;
             cursor: pointer;
-            border: 2px solid white;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+            transition: all 0.15s;
+            -webkit-tap-highlight-color: transparent;
         }
+        .quick-chip.active {
+            border-color: #6366f1;
+            background: #eef2ff;
+            color: #4338ca;
+            font-weight: 600;
+        }
+        .quick-chip:active { transform: scale(0.97); }
 
         .result-box {
             background: #1e293b;
@@ -149,24 +150,6 @@
             margin-top: 12px;
         }
         .result-box .label { color: #94a3b8; font-size: 14px; display: block; margin-bottom: 6px; }
-        .result-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-top: 6px;
-        }
-        .result-item {
-            background: rgba(255,255,255,0.05);
-            border-radius: 10px;
-            padding: 10px;
-        }
-        .result-item .sub-label { font-size: 12px; color: #94a3b8; display: block; }
-        .result-item .amount {
-            font-size: 24px;
-            font-weight: 700;
-            color: #fbbf24;
-        }
-        .result-item .amount .currency { font-size: 16px; font-weight: 400; color: #fbbf24; margin-right: 3px; }
         .result-single {
             font-size: 34px;
             font-weight: 700;
@@ -216,6 +199,105 @@
             font-weight: 500;
         }
 
+        .pack-list { display: flex; flex-direction: column; gap: 10px; }
+        .pack-item {
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 12px 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .pack-row { display: flex; align-items: center; gap: 12px; }
+        .pack-item.selected {
+            border-color: #6366f1;
+            background: #eef2ff;
+            box-shadow: 0 2px 10px rgba(99,102,241,0.15);
+        }
+        .pack-item:active { transform: scale(0.99); }
+        .pack-item .check {
+            width: 22px;
+            height: 22px;
+            flex: 0 0 auto;
+            border-radius: 6px;
+            border: 2px solid #cbd5e1;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 14px;
+            font-weight: 700;
+        }
+        .pack-item.selected .check { background: #6366f1; border-color: #6366f1; }
+        .pack-item .pack-main { flex: 1; min-width: 0; }
+        .pack-item .pack-name { font-size: 15px; font-weight: 600; color: #1a1a2e; }
+        .pack-item .pack-meta { font-size: 12px; color: #64748b; margin-top: 2px; }
+        .pack-item .pack-price { flex: 0 0 auto; text-align: right; }
+        .pack-item .pack-price .jpy { font-size: 17px; font-weight: 700; color: #dc2626; }
+        .pack-item .pack-price .per { font-size: 11px; color: #94a3b8; margin-top: 2px; }
+        .pack-badge {
+            display: inline-block;
+            background: #fbbf24;
+            color: #7c2d12;
+            font-size: 10px;
+            font-weight: 700;
+            border-radius: 4px;
+            padding: 1px 5px;
+            margin-right: 6px;
+            vertical-align: middle;
+        }
+        .pack-badge.best-badge { background: #16a34a; color: white; margin-left: 6px; margin-right: 0; }
+
+        .qty-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px dashed #cbd5e1;
+        }
+        .qty-row .qty-label { font-size: 12px; color: #64748b; }
+        .qty-row button {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            border: 1px solid #cbd5e1;
+            background: white;
+            color: #4b5563;
+            font-size: 18px;
+            line-height: 1;
+            cursor: pointer;
+            flex: 0 0 auto;
+        }
+        .qty-row button:disabled { opacity: 0.4; cursor: not-allowed; }
+        .qty-row .qty-val { font-size: 15px; font-weight: 600; color: #1a1a2e; min-width: 26px; text-align: center; }
+        .qty-row .qty-sub { margin-left: auto; font-size: 12px; color: #6366f1; font-weight: 500; }
+
+        .advanced {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 0 12px;
+            margin-bottom: 12px;
+        }
+        .advanced summary {
+            display: flex;
+            align-items: center;
+            font-size: 13px;
+            color: #4b5563;
+            cursor: pointer;
+            padding: 10px 0;
+            min-height: 44px;
+            list-style: none;
+        }
+        .advanced summary::-webkit-details-marker { display: none; }
+        .advanced summary::before { content: '▸'; margin-right: 6px; color: #94a3b8; }
+        .advanced[open] summary::before { content: '▾'; }
+        .advanced .source-selector { margin-bottom: 8px; padding: 6px 0; background: transparent; }
+        .advanced .source-info { padding-bottom: 8px; }
+
         @media (max-width: 480px) {
             .source-selector { flex-direction: column; align-items: stretch; }
             .tab-btn { font-size: 14px; padding: 8px 0; }
@@ -226,10 +308,21 @@
     <div id="root"></div>
 
     <script type="text/babel">
+        // 日服特惠档位（KONAMI 官方商店 store.konami.net/efootball · 有償分 + 無償分）
+        const SALE_PACKS = [
+            { id: 'c650',  name: 'Coin 650',  jpy: 500,  paid: 405,  free: 245,  maxQty: 4, note: '剩 18 天' },
+            { id: 'c840',  name: 'Coin 840',  jpy: 650,  paid: 530,  free: 310,  maxQty: 1, note: '剩 13 天' },
+            { id: 'c2700', name: 'Coin 2700', jpy: 1900, paid: 1540, free: 1160, maxQty: 1, note: '剩 13 天' },
+            { id: 'c7300', name: 'Coin 7300', jpy: 4800, paid: 3900, free: 3400, maxQty: 1, note: '剩 13 天' },
+        ];
+
+        // 欧元卡常用金币档位快捷按钮（1 金币 = 1 日元）
+        const EURO_QUICK_AMOUNTS = [840, 2700, 7300, 12000, 32200];
+
         function App() {
             // ---------- 状态 ----------
             // coinAmount 允许为 ''（空字符串）或数字
-            const [coinAmount, setCoinAmount] = React.useState(12000);
+            const [coinAmount, setCoinAmount] = React.useState(2700);
             const [jpyToEurRate, setJpyToEurRate] = React.useState(null);
             const [jpyToCnyRate, setJpyToCnyRate] = React.useState(null);
             const [eurToCnyRate, setEurToCnyRate] = React.useState(null);
@@ -238,9 +331,12 @@
             const [sourceInfo, setSourceInfo] = React.useState('');
             const [preferredSource, setPreferredSource] = React.useState('cloudflare');
 
-            const [activeTab, setActiveTab] = React.useState('euro');
-            // cnyPer10Eur 也允许空字符串
-            const [cnyPer10Eur, setCnyPer10Eur] = React.useState('75');
+            // 支付方式：'euro' = 欧元卡，'yen' = 日元直购（KONAMI 日服商店）
+            const [payMode, setPayMode] = React.useState('euro');
+            // cnyPer10Eur 也允许空字符串（用户自己填的欧元扣款汇率，默认 60 元 / 10€）
+            const [cnyPer10Eur, setCnyPer10Eur] = React.useState('60');
+            // 已选的日服特惠档位及份数（可多选，Coin 650 最多 4 份）
+            const [packQty, setPackQty] = React.useState({ c2700: 1, c7300: 1 });
 
             const FALLBACK_JPY_EUR = 0.0054;
             const FALLBACK_JPY_CNY = 0.0414;
@@ -405,21 +501,51 @@
                 return { jpy: jpyAmount, rawEur, roundedEur, rawCny, roundedCny };
             };
 
-            const calculateYen = () => {
-                const jpyAmount = getJpyAmount();
-                const rate = jpyToCnyRate ?? FALLBACK_JPY_CNY;
-                const totalCny = jpyAmount * rate;
-                return { jpy: jpyAmount, totalCny, rate };
+            const euroResult = calculateEuro();
+            // 欧元卡：每 1000 金币实际需付的人民币（按向上取整后的欧元折算）
+            const euroPerK = euroResult.jpy > 0 ? (euroResult.roundedCny / euroResult.jpy) * 1000 : 0;
+
+            // ---------- 日服特惠档位 ----------
+            const cnyRate = jpyToCnyRate ?? FALLBACK_JPY_CNY;
+            const packList = SALE_PACKS.map(p => {
+                const coins = p.paid + p.free;
+                const perK = (p.jpy / coins) * 1000;
+                return { ...p, coins, perK, cnyPerK: perK * cnyRate, qty: packQty[p.id] || 0 };
+            });
+            const bestPackId = packList.reduce((best, p) => (!best || p.perK < best.perK) ? p : best, null)?.id;
+            const selected = packList.filter(p => p.qty > 0);
+            const totalQty = selected.reduce((sum, p) => sum + p.qty, 0);
+            const packTotal = selected.reduce(
+                (acc, p) => ({
+                    coins: acc.coins + p.coins * p.qty,
+                    jpy: acc.jpy + p.jpy * p.qty,
+                    paid: acc.paid + p.paid * p.qty,
+                    free: acc.free + p.free * p.qty,
+                }),
+                { coins: 0, jpy: 0, paid: 0, free: 0 }
+            );
+            const packTotalCny = packTotal.jpy * cnyRate;
+            const packPerK = packTotal.coins > 0 ? (packTotalCny / packTotal.coins) * 1000 : 0;
+            const togglePack = (id) => {
+                setPackQty(prev => ({ ...prev, [id]: (prev[id] || 0) > 0 ? 0 : 1 }));
+            };
+            const changeQty = (id, delta) => {
+                const pack = SALE_PACKS.find(p => p.id === id);
+                const max = pack ? pack.maxQty : 1;
+                setPackQty(prev => {
+                    const cur = prev[id] || 0;
+                    return { ...prev, [id]: Math.min(max, Math.max(1, cur + delta)) };
+                });
             };
 
-            const euroResult = calculateEuro();
-            const yenResult = calculateYen();
+            // 顶栏汇率：用更直观的口径展示
+            const rateBannerLabel = payMode === 'euro' ? '💱 自动汇率（日元 → 欧元）' : '💱 自动汇率（日元 → 人民币）';
+            const rateBannerText = payMode === 'euro'
+                ? `1 EUR ≈ ${(1 / (jpyToEurRate ?? FALLBACK_JPY_EUR)).toFixed(1)} 日元`
+                : `100 日元 ≈ CN¥${((jpyToCnyRate ?? FALLBACK_JPY_CNY) * 100).toFixed(2)}`;
 
-            const displayRate = activeTab === 'euro'
-                ? (jpyToEurRate ?? FALLBACK_JPY_EUR)
-                : (jpyToCnyRate ?? FALLBACK_JPY_CNY);
-            const displayCurrency = activeTab === 'euro' ? 'EUR' : 'CNY';
-            const displayLabel = activeTab === 'euro' ? '💱 日元 → 欧元' : '💱 日元 → 人民币';
+            // 主指标：每 1000 金币折合人民币（两种支付方式共用）
+            const heroPerK = payMode === 'euro' ? euroPerK : packPerK;
 
             // ---------- 输入处理 ----------
             const handleCoinChange = (e) => {
@@ -446,26 +572,26 @@
             return (
                 <div className="app-container">
                     <header>
-                        <h1>{activeTab === 'euro' ? '⚽ eFootball 金币换汇' : '⚽ eFootball 日元特惠'}</h1>
+                        <h1>⚽ eFootball 金币比价</h1>
                         <div className="subtitle">
-                            {activeTab === 'euro'
-                                ? '12000 金币 = 12000 日元 · 欧元向上取整'
-                                : '直接兑换 · 实时汇率自动获取'}
+                            {payMode === 'yen'
+                                ? '勾选日服特惠档位 · 实时汇率折算'
+                                : '输入金币数 · 按欧元卡折算'}
                         </div>
                     </header>
 
                     <div className="tab-bar">
                         <button
-                            className={`tab-btn ${activeTab === 'euro' ? 'active' : ''}`}
-                            onClick={() => setActiveTab('euro')}
+                            className={`tab-btn ${payMode === 'euro' ? 'active' : ''}`}
+                            onClick={() => setPayMode('euro')}
                         >
                             💳 欧元卡
                         </button>
                         <button
-                            className={`tab-btn ${activeTab === 'yen' ? 'active' : ''}`}
-                            onClick={() => setActiveTab('yen')}
+                            className={`tab-btn ${payMode === 'yen' ? 'active' : ''}`}
+                            onClick={() => setPayMode('yen')}
                         >
-                            🎌 日元特惠
+                            🎌 日元直购
                         </button>
                     </div>
 
@@ -476,128 +602,181 @@
                     )}
 
                     <div className="rate-banner">
-                        <span className="label">{displayLabel}</span>
+                        <span className="label">{rateBannerLabel}</span>
                         <span className="value">
-                            {loading ? '加载中...' :
-                             `1 JPY = ${displayRate.toFixed(6)} ${displayCurrency}`}
+                            {loading ? '加载中...' : rateBannerText}
                         </span>
                         <button className="refresh-btn" onClick={fetchRate} disabled={loading}>
                             {loading ? '↻' : '刷新'}
                         </button>
                     </div>
 
-                    <div className="source-selector">
-                        <label htmlFor="sourceSelect">📡 首选数据源：</label>
-                        <select
-                            id="sourceSelect"
-                            value={preferredSource}
-                            onChange={(e) => setPreferredSource(e.target.value)}
-                            disabled={loading}
-                        >
-                            <option value="cloudflare">Cloudflare Pages (推荐)</option>
-                            <option value="jsdelivr">jsDelivr CDN (备选)</option>
-                            <option value="exchangerate">exchangerate.host (ECB)</option>
-                        </select>
-                        <span style={{ fontSize: '12px', color: '#6b7280' }}>(切换后自动刷新)</span>
-                    </div>
-                    <div className="source-info">{sourceInfo}</div>
-
-                    <div className="card">
-                        <span className="label">
-                            {activeTab === 'euro' ? '🪙 金币数量' : '🎌 日元金额'}
-                        </span>
-                        <div className="input-group">
-                            <input
-                                type="number"
-                                value={coinAmount}
-                                onChange={handleCoinChange}
-                                min="0"
-                                step="100"
-                                placeholder="输入数量"
-                            />
-                            <span className="unit-label">
-                                {activeTab === 'euro' ? '金币' : '日元'}
-                            </span>
+                    <details className="advanced">
+                        <summary>⚙️ 高级设置（汇率数据源）</summary>
+                        <div className="source-selector">
+                            <label htmlFor="sourceSelect">📡 首选数据源：</label>
+                            <select
+                                id="sourceSelect"
+                                value={preferredSource}
+                                onChange={(e) => setPreferredSource(e.target.value)}
+                                disabled={loading}
+                            >
+                                <option value="cloudflare">Cloudflare Pages (推荐)</option>
+                                <option value="jsdelivr">jsDelivr CDN (备选)</option>
+                                <option value="exchangerate">exchangerate.host (ECB)</option>
+                            </select>
+                            <span style={{ fontSize: '12px', color: '#6b7280' }}>(切换后自动刷新)</span>
                         </div>
-                        <div className="slider-container">
-                            <input
-                                type="range"
-                                min="0"
-                                max="50000"
-                                step="100"
-                                value={coinAmount === '' ? 0 : coinAmount}
-                                onChange={(e) => setCoinAmount(Number(e.target.value))}
-                            />
-                            <div style={{ position: 'relative', width: '100%', height: '20px', marginTop: '4px' }}>
-                                <span style={{ position: 'absolute', left: '0%', transform: 'translateX(-50%)', fontSize: '11px', color: '#94a3b8' }}>0</span>
-                                <span style={{ position: 'absolute', left: '24%', transform: 'translateX(-50%)', fontSize: '11px', color: '#94a3b8' }}>12,000</span>
-                                <span style={{ position: 'absolute', left: '100%', transform: 'translateX(-50%)', fontSize: '11px', color: '#94a3b8' }}>50,000</span>
+                        <div className="source-info">{sourceInfo}</div>
+                    </details>
+
+                    {payMode === 'euro' && (
+                        <div className="card">
+                            <span className="label">🪙 金币数量（1 金币 = 1 日元）</span>
+                            <div className="input-group">
+                                <input
+                                    type="number"
+                                    value={coinAmount}
+                                    onChange={handleCoinChange}
+                                    min="0"
+                                    step="100"
+                                    placeholder="输入数量"
+                                />
+                                <span className="unit-label">金币</span>
+                            </div>
+                            <div className="quick-row">
+                                {EURO_QUICK_AMOUNTS.map(v => (
+                                    <button
+                                        key={v}
+                                        className={`quick-chip ${Number(coinAmount) === v ? 'active' : ''}`}
+                                        onClick={() => setCoinAmount(v)}
+                                    >
+                                        {v.toLocaleString()}
+                                    </button>
+                                ))}
                             </div>
                         </div>
-                    </div>
+                    )}
 
-                    {activeTab === 'euro' && (
+                    {payMode === 'euro' && (
                         <div className="card">
-                            <span className="label">💵 每 10 欧元 = ? 人民币</span>
+                            <span className="label">💳 淘宝：每 10 欧元扣多少人民币</span>
                             <div className="input-group">
                                 <input
                                     type="text"
                                     inputMode="decimal"
                                     value={cnyPer10Eur}
                                     onChange={handleCnyPer10EurChange}
-                                    placeholder="例如 75"
+                                    placeholder="60"
                                 />
-                                <span className="unit-label">元 / 10€</span>
+                                <span className="unit-label">CN¥ / 10€</span>
                             </div>
                             <div style={{ fontSize: '12px', color: '#94a3b8', marginTop: '6px' }}>
-                                例如：75 表示 10欧元 = 75元人民币
+                                按淘宝的实际售价填，默认 60（即 1 欧元 = 6 元）
                             </div>
                         </div>
                     )}
 
-                    {activeTab === 'yen' && (
-                        <div style={{ fontSize: '13px', color: '#64748b', textAlign: 'center', marginBottom: '12px' }}>
-                            💡 当前 1 日元 ≈ {(jpyToCnyRate ?? FALLBACK_JPY_CNY).toFixed(6)} 人民币
-                            <span style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginTop: '4px' }}>
-                                （实时汇率自动获取，无需手动输入）
-                            </span>
+                    {payMode === 'yen' && (
+                        <div className="card">
+                            <span className="label">🎌 日服特惠档位（点击可多选）</span>
+                            <div className="pack-list">
+                                {packList.map(p => {
+                                    const isSel = p.qty > 0;
+                                    return (
+                                        <div
+                                            key={p.id}
+                                            className={`pack-item ${isSel ? 'selected' : ''}`}
+                                            role="checkbox"
+                                            aria-checked={isSel}
+                                            tabIndex={0}
+                                            aria-label={`${p.name}，${p.coins.toLocaleString()} 金币，JP¥${p.jpy}`}
+                                            onClick={() => togglePack(p.id)}
+                                            onKeyDown={(e) => {
+                                                if (e.target !== e.currentTarget) return;
+                                                if (e.key === ' ' || e.key === 'Enter') {
+                                                    e.preventDefault();
+                                                    togglePack(p.id);
+                                                }
+                                            }}
+                                        >
+                                            <div className="pack-row">
+                                                <div className="check">{isSel ? '✓' : ''}</div>
+                                                <div className="pack-main">
+                                                    <div className="pack-name">
+                                                        <span className="pack-badge">SALE</span>
+                                                        {p.name}
+                                                        {p.id === bestPackId && (
+                                                            <span className="pack-badge best-badge">最划算</span>
+                                                        )}
+                                                    </div>
+                                                    <div className="pack-meta">
+                                                        {p.paid.toLocaleString()} 有偿 + {p.free.toLocaleString()} 无偿 = {p.coins.toLocaleString()} 金币
+                                                    </div>
+                                                    <div className="pack-meta">商店限购 {p.maxQty} 次 · {p.note}</div>
+                                                </div>
+                                                <div className="pack-price">
+                                                    <div className="jpy">JP¥{p.jpy.toLocaleString()}</div>
+                                                    <div className="per">≈CN¥{p.cnyPerK.toFixed(0)}/千币</div>
+                                                </div>
+                                            </div>
+                                            {isSel && p.maxQty > 1 && (
+                                                <div className="qty-row" onClick={(e) => e.stopPropagation()}>
+                                                    <span className="qty-label">购买份数（最多 {p.maxQty} 份）</span>
+                                                    <button
+                                                        onClick={() => changeQty(p.id, -1)}
+                                                        disabled={p.qty <= 1}
+                                                        aria-label="减少"
+                                                    >−</button>
+                                                    <span className="qty-val">×{p.qty}</span>
+                                                    <button
+                                                        onClick={() => changeQty(p.id, 1)}
+                                                        disabled={p.qty >= p.maxQty}
+                                                        aria-label="增加"
+                                                    >+</button>
+                                                    <span className="qty-sub">
+                                                        小计 JP¥{(p.jpy * p.qty).toLocaleString()} · {(p.coins * p.qty).toLocaleString()} 币
+                                                    </span>
+                                                </div>
+                                            )}
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                            <div style={{ fontSize: '12px', color: '#94a3b8', marginTop: '10px', textAlign: 'center', lineHeight: 1.6 }}>
+                                数据来源：KONAMI 官方商店 store.konami.net（日服）<br />
+                                1 日元 ≈ {cnyRate.toFixed(6)} 人民币 · 实时汇率自动获取
+                            </div>
                         </div>
                     )}
 
                     <div className="result-box">
-                        <span className="label">
-                            {activeTab === 'euro' ? '💳 需要支付的人民币' : '💴 兑换可得人民币'}
-                        </span>
+                        <span className="label">💰 每 1,000 金币折合人民币</span>
 
-                        {activeTab === 'euro' ? (
+                        <div className="result-single">
+                            {(payMode === 'yen' && selected.length === 0) ? (
+                                <span style={{ fontSize: '20px', fontWeight: 500, color: '#94a3b8' }}>请先选择档位</span>
+                            ) : (
+                                <><span className="currency">CN¥</span>{heroPerK.toFixed(2)}</>
+                            )}
+                        </div>
+
+                        {payMode === 'euro' ? (
                             <>
-                                <div className="result-grid">
-                                    <div className="result-item">
-                                        <span className="sub-label">原始转换</span>
-                                        <div className="amount"><span className="currency">¥</span>{euroResult.rawCny.toFixed(2)}</div>
-                                    </div>
-                                    <div className="result-item">
-                                        <span className="sub-label">向上取整后</span>
-                                        <div className="amount"><span className="currency">¥</span>{euroResult.roundedCny.toFixed(2)}</div>
-                                    </div>
+                                <div className="detail-row">
+                                    <span>💶 JP¥{euroResult.jpy.toLocaleString()} → <span className="highlight">{euroResult.roundedEur}</span> EUR（向上取整）</span>
                                 </div>
                                 <div className="detail-row">
-                                    <span>💶 原始欧元：<span className="highlight">{euroResult.rawEur.toFixed(2)}</span></span>
-                                    <span>🔝 取整后：<span className="highlight">{euroResult.roundedEur}</span> EUR</span>
-                                </div>
-                                <div className="note" style={{ fontSize: '12px', color: '#64748b', marginTop: '6px' }}>
-                                    {euroResult.jpy.toLocaleString()} 日元 → {euroResult.roundedEur} 欧元（向上取整）→ 计算人民币
+                                    <span>💳 淘宝按 <span className="highlight">{cnyPer10Eur === '' ? 0 : cnyPer10Eur} 元 / 10€</span>：实际 ≈ <span className="highlight">CN¥{euroResult.rawCny.toFixed(2)}</span> → 向上取整 ≈ <span className="highlight">CN¥{euroResult.roundedCny.toFixed(2)}</span></span>
                                 </div>
                             </>
                         ) : (
                             <>
-                                <div className="result-single">
-                                    <span className="currency">¥</span>{yenResult.totalCny.toFixed(2)}
+                                <div className="detail-row">
+                                    <span>🪙 合计 <span className="highlight">{packTotal.coins.toLocaleString()}</span> 金币 · 已选 <span className="highlight">{selected.length}</span> 档 <span className="highlight">{totalQty}</span> 份</span>
                                 </div>
                                 <div className="detail-row">
-                                    <span>
-                                        💴 {yenResult.jpy.toLocaleString()} 日元 × {(yenResult.rate || 0).toFixed(6)} = ¥ {yenResult.totalCny.toFixed(2)}
-                                    </span>
+                                    <span>💴 需付 JP¥<span className="highlight">{packTotal.jpy.toLocaleString()}</span> ≈ <span className="highlight">CN¥{packTotalCny.toFixed(2)}</span></span>
                                 </div>
                             </>
                         )}
