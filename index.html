@@ -310,10 +310,10 @@
     <script type="text/babel">
         // 日服特惠档位（KONAMI 官方商店 store.konami.net/efootball · 有償分 + 無償分）
         const SALE_PACKS = [
-            { id: 'c650',  name: 'Coin 650',  jpy: 500,  paid: 405,  free: 245,  maxQty: 4, note: '剩 18 天' },
-            { id: 'c840',  name: 'Coin 840',  jpy: 650,  paid: 530,  free: 310,  maxQty: 1, note: '剩 13 天' },
-            { id: 'c2700', name: 'Coin 2700', jpy: 1900, paid: 1540, free: 1160, maxQty: 1, note: '剩 13 天' },
-            { id: 'c7300', name: 'Coin 7300', jpy: 4800, paid: 3900, free: 3400, maxQty: 1, note: '剩 13 天' },
+            { id: 'c650',  name: 'Coin 650',  jpy: 500,  paid: 405,  free: 245,  maxQty: 4 },
+            { id: 'c840',  name: 'Coin 840',  jpy: 650,  paid: 530,  free: 310,  maxQty: 1 },
+            { id: 'c2700', name: 'Coin 2700', jpy: 1900, paid: 1540, free: 1160, maxQty: 1 },
+            { id: 'c7300', name: 'Coin 7300', jpy: 4800, paid: 3900, free: 3400, maxQty: 1 },
         ];
 
         // 欧元卡常用金币档位快捷按钮（1 金币 = 1 日元）
@@ -322,7 +322,7 @@
         function App() {
             // ---------- 状态 ----------
             // coinAmount 允许为 ''（空字符串）或数字
-            const [coinAmount, setCoinAmount] = React.useState(2700);
+            const [coinAmount, setCoinAmount] = React.useState(12000);
             const [jpyToEurRate, setJpyToEurRate] = React.useState(null);
             const [jpyToCnyRate, setJpyToCnyRate] = React.useState(null);
             const [eurToCnyRate, setEurToCnyRate] = React.useState(null);
@@ -713,7 +713,7 @@
                                                     <div className="pack-meta">
                                                         {p.paid.toLocaleString()} 有偿 + {p.free.toLocaleString()} 无偿 = {p.coins.toLocaleString()} 金币
                                                     </div>
-                                                    <div className="pack-meta">商店限购 {p.maxQty} 次 · {p.note}</div>
+                                                    <div className="pack-meta">商店限购 {p.maxQty} 次</div>
                                                 </div>
                                                 <div className="pack-price">
                                                     <div className="jpy">JP¥{p.jpy.toLocaleString()}</div>
