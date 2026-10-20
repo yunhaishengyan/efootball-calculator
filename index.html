@@ -3,12 +3,10 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
-    <title>⚽ eFootball 金币换汇 · 双模自动汇率</title>
+    <title>⚽ eFootball 金币比价 </title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js" crossorigin></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js" crossorigin></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js" crossorigin></script>
     <style>
-        /* 样式保持不变（略，与上一版完全相同） */
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { background: #f0f2f5; min-height: 100vh; display: flex; justify-content: center; align-items: center; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; padding: 12px; touch-action: manipulation; }
         .app-container { max-width: 500px; width: 100%; background: white; border-radius: 20px; padding: 20px; box-shadow: 0 8px 30px rgba(0,0,0,0.08); }
@@ -57,6 +55,14 @@
         }
         .rate-banner .label { color: #4b5563; font-size: 13px; }
         .rate-banner .value { font-weight: 600; color: #1a1a2e; font-size: 14px; }
+        .rate-banner .rate-status-chip {
+            font-size: 11px;
+            color: #4338ca;
+            background: #e0e7ff;
+            border-radius: 10px;
+            padding: 2px 8px;
+            white-space: nowrap;
+        }
         .rate-banner .refresh-btn {
             background: #6366f1;
             color: white;
@@ -307,48 +313,39 @@
 <body>
     <div id="root"></div>
 
-    <script type="text/babel">
-        // 日服特惠档位（KONAMI 官方商店 store.konami.net/efootball · 有償分 + 無償分）
-        const SALE_PACKS = [
-            { id: 'c650',  name: 'Coin 650',  jpy: 500,  paid: 405,  free: 245,  maxQty: 4 },
-            { id: 'c840',  name: 'Coin 840',  jpy: 650,  paid: 530,  free: 310,  maxQty: 1 },
-            { id: 'c2700', name: 'Coin 2700', jpy: 1900, paid: 1540, free: 1160, maxQty: 1 },
-            { id: 'c7300', name: 'Coin 7300', jpy: 4800, paid: 3900, free: 3400, maxQty: 1 },
-        ];
+    <script>
+        (function () {
+            'use strict';
 
-        // 欧元卡金币档位（日元价 · KONAMI 欧元商店）
-        const EURO_PACKS = [
-            { id: 'e100',   coins: 100,   yen: 120 },
-            { id: 'e520',   coins: 520,   yen: 610 },
-            { id: 'e1050',  coins: 1050,  yen: 1220 },
-            { id: 'e2150',  coins: 2150,  yen: 2440 },
-            { id: 'e3300',  coins: 3300,  yen: 3680 },
-            { id: 'e5800',  coins: 5800,  yen: 6100 },
-            { id: 'e12000', coins: 12000, yen: 12000 },
-        ];
+            const e = React.createElement;
+            const F = React.Fragment;
 
-        function App() {
-            // ---------- 状态 ----------
-            const [jpyToEurRate, setJpyToEurRate] = React.useState(null);
-            const [jpyToCnyRate, setJpyToCnyRate] = React.useState(null);
-            const [eurToCnyRate, setEurToCnyRate] = React.useState(null);
-            const [loading, setLoading] = React.useState(true);
-            const [error, setError] = React.useState(null);
-            const [sourceInfo, setSourceInfo] = React.useState('');
-            const [preferredSource, setPreferredSource] = React.useState('cloudflare');
+            // 日服特惠档位（KONAMI 官方商店 store.konami.net/efootball · 有償分 + 無償分）
+            const SALE_PACKS = [
+                { id: 'c650',  name: 'Coin 650',  jpy: 500,  paid: 405,  free: 245,  maxQty: 4 },
+                { id: 'c840',  name: 'Coin 840',  jpy: 650,  paid: 530,  free: 310,  maxQty: 1 },
+                { id: 'c2700', name: 'Coin 2700', jpy: 1900, paid: 1540, free: 1160, maxQty: 1 },
+                { id: 'c7300', name: 'Coin 7300', jpy: 4800, paid: 3900, free: 3400, maxQty: 1 }
+            ];
 
-            // 支付方式：'euro' = 欧元卡，'yen' = 日元直购（KONAMI 日服商店）
-            const [payMode, setPayMode] = React.useState('euro');
-            // cnyPer10Eur 也允许空字符串（用户自己填的欧元扣款汇率，默认 60 元 / 10€）
-            const [cnyPer10Eur, setCnyPer10Eur] = React.useState('60');
-            // 已选的日服特惠档位及份数（可多选，Coin 650 最多 4 份）
-            const [packQty, setPackQty] = React.useState({ c2700: 1, c7300: 1 });
-            // 已选的欧元卡档位及份数（可多选，不限份数）
-            const [euroPackQty, setEuroPackQty] = React.useState({});
+            // 欧元卡金币档位（日元价 · KONAMI 欧元商店）
+            const EURO_PACKS = [
+                { id: 'e100',   coins: 100,   yen: 120 },
+                { id: 'e520',   coins: 520,   yen: 610 },
+                { id: 'e1050',  coins: 1050,  yen: 1220 },
+                { id: 'e2150',  coins: 2150,  yen: 2440 },
+                { id: 'e3300',  coins: 3300,  yen: 3680 },
+                { id: 'e5800',  coins: 5800,  yen: 6100 },
+                { id: 'e12000', coins: 12000, yen: 12000 }
+            ];
+
+            // 档位价格最后核对日期（以 KONAMI 官方商店为准）
+            const PACK_DATA_VERIFIED_AT = '2026-10-20';
 
             const FALLBACK_JPY_EUR = 0.0054;
             const FALLBACK_JPY_CNY = 0.0414;
             const FALLBACK_EUR_CNY = 7.5;
+            const RATE_CACHE_KEY = 'efootball_rate_cache_v1';
 
             // ---------- 数据源配置 ----------
             const API_SOURCES = {
@@ -394,116 +391,551 @@
                 return [preferredKey, ...others];
             };
 
-            // ---------- 核心获取 ----------
-            const fetchRate = async () => {
-                setLoading(true);
-                setError(null);
-                setSourceInfo('');
-
-                let usedEurSource = null;
-                let usedCnySource = null;
-                let eurRate = null;
-                let cnyRate = null;
-
-                const order = getSourcesInOrder(preferredSource);
-                for (const key of order) {
-                    const api = API_SOURCES[key];
-                    try {
-                        const controller = new AbortController();
-                        const timeoutId = setTimeout(() => controller.abort(), 6000);
-                        const res = await fetch(api.url, { signal: controller.signal });
-                        clearTimeout(timeoutId);
-                        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-                        const data = await res.json();
-                        const parsed = api.parse(data);
-                        if (parsed.eur && typeof parsed.eur === 'number' && parsed.eur > 0) {
-                            eurRate = parsed.eur;
-                            usedEurSource = api.name;
-                        }
-                        if (parsed.cny && typeof parsed.cny === 'number' && parsed.cny > 0) {
-                            cnyRate = parsed.cny;
-                            usedCnySource = api.name;
-                        }
-                        if (eurRate !== null) break;
-                    } catch (err) {
-                        console.warn(`主源 "${api.name}" 失败:`, err.message);
-                    }
+            // ---------- 本地缓存 ----------
+            const readRateCache = () => {
+                try {
+                    const raw = localStorage.getItem(RATE_CACHE_KEY);
+                    if (!raw) return null;
+                    const obj = JSON.parse(raw);
+                    if (!obj || typeof obj !== 'object') return null;
+                    return obj;
+                } catch (err) {
+                    return null;
                 }
-
-                if (eurRate === null) {
-                    eurRate = FALLBACK_JPY_EUR;
-                    usedEurSource = '备选 (JPY→EUR)';
-                }
-
-                if (cnyRate === null) {
-                    // 尝试专用源
-                    const cnyApi = API_SOURCES_JPY_CNY.exchangerate;
-                    try {
-                        const controller = new AbortController();
-                        const timeoutId = setTimeout(() => controller.abort(), 6000);
-                        const res = await fetch(cnyApi.url, { signal: controller.signal });
-                        clearTimeout(timeoutId);
-                        if (res.ok) {
-                            const data = await res.json();
-                            const rate = cnyApi.parse(data);
-                            if (typeof rate === 'number' && rate > 0) {
-                                cnyRate = rate;
-                                usedCnySource = cnyApi.name;
-                            }
-                        }
-                    } catch (err) {
-                        console.warn('JPY→CNY 专用源失败:', err.message);
-                    }
-                }
-
-                if (cnyRate === null) {
-                    // 间接计算
-                    let eurCnyRate = null;
-                    try {
-                        const url = 'https://api.exchangerate.host/latest?base=EUR&symbols=CNY';
-                        const res = await fetch(url);
-                        if (res.ok) {
-                            const data = await res.json();
-                            eurCnyRate = data?.rates?.CNY;
-                        }
-                    } catch (e) { /* ignore */ }
-                    if (eurCnyRate && typeof eurCnyRate === 'number' && eurCnyRate > 0) {
-                        cnyRate = eurRate * eurCnyRate;
-                        usedCnySource = `间接 (EUR→CNY ${eurCnyRate.toFixed(4)})`;
-                        setEurToCnyRate(eurCnyRate);
-                    } else {
-                        cnyRate = FALLBACK_JPY_CNY;
-                        usedCnySource = '备选 (JPY→CNY)';
-                    }
-                }
-
-                setJpyToEurRate(eurRate);
-                setJpyToCnyRate(cnyRate);
-                setSourceInfo(`✅ JPY→EUR: ${usedEurSource} | JPY→CNY: ${usedCnySource}`);
-                if (usedEurSource.includes('备选') || usedCnySource.includes('备选')) {
-                    setError('部分汇率使用备选值，可能不准确');
-                } else {
-                    setError(null);
-                }
-                setLoading(false);
             };
 
-            React.useEffect(() => {
-                fetchRate();
-                const timer = setInterval(fetchRate, 300000);
-                return () => clearInterval(timer);
-            }, [preferredSource]);
+            const writeRateCache = (data) => {
+                try {
+                    localStorage.setItem(RATE_CACHE_KEY, JSON.stringify(data));
+                } catch (err) {
+                    // 隐私模式或配额不足时忽略，不影响主流程
+                }
+            };
 
-            // ---------- 计算 ----------
-            // 欧元卡：每 10 欧元扣多少人民币（用户手动输入）
-            const userCnyPer10Eur = parseFloat(cnyPer10Eur);
-            const validCnyPer10Eur = isNaN(userCnyPer10Eur) || userCnyPer10Eur < 0 ? 0 : userCnyPer10Eur;
-            const eurRateForCalc = jpyToEurRate ?? FALLBACK_JPY_EUR;
+            const isValidRate = (v) => typeof v === 'number' && isFinite(v) && v > 0;
 
-            // ---------- 欧元卡档位 ----------
-            // 每档展示「理论单价」（不取整）
-            const euroPackList = EURO_PACKS.map(p => {
-                const rawEur = p.yen * eurRateForCalc;
-                const rmb = rawEur * (validCnyPer10Eur / 10);
-                const cnyPerK = p.coins > 0 ? (rmb / p.coins) * 1000 : 0;
-   
+            const formatTime = (iso) => {
+                if (!iso) return '—';
+                const d = new Date(iso);
+                if (isNaN(d.getTime())) return '—';
+                const pad = (n) => (n < 10 ? '0' + n : '' + n);
+                return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate())
+                    + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes());
+            };
+
+            // 从缓存对象中取出可用汇率
+            const pickCachedRates = (cache) => {
+                const c = cache || {};
+                return {
+                    eur: isValidRate(c.jpyToEurRate) ? c.jpyToEurRate : null,
+                    cny: isValidRate(c.jpyToCnyRate) ? c.jpyToCnyRate : null,
+                    eurCny: isValidRate(c.eurToCnyRate) ? c.eurToCnyRate : null,
+                    updatedAt: typeof c.rateUpdatedAt === 'string' ? c.rateUpdatedAt : null
+                };
+            };
+
+            function App() {
+                // ---------- 状态 ----------
+                const cache = React.useMemo(() => pickCachedRates(readRateCache()), []);
+                const hasCache = cache.eur !== null || cache.cny !== null;
+
+                const [jpyToEurRate, setJpyToEurRate] = React.useState(cache.eur);
+                const [jpyToCnyRate, setJpyToCnyRate] = React.useState(cache.cny);
+                const [eurToCnyRate, setEurToCnyRate] = React.useState(cache.eurCny);
+                const [loading, setLoading] = React.useState(true);
+                const [error, setError] = React.useState(null);
+                const [sourceInfo, setSourceInfo] = React.useState('');
+                const [preferredSource, setPreferredSource] = React.useState('cloudflare');
+                // 'live' | 'cache' | 'fallback' | 'loading'
+                const [rateStatus, setRateStatus] = React.useState(hasCache ? 'cache' : 'loading');
+                const [rateUpdatedAt, setRateUpdatedAt] = React.useState(cache.updatedAt);
+
+                // 支付方式：'euro' = 欧元卡，'yen' = 日元直购（KONAMI 日服商店）
+                const [payMode, setPayMode] = React.useState('euro');
+                // cnyPer10Eur 允许空字符串（用户自己填的欧元扣款汇率，默认 60 元 / 10€）
+                const [cnyPer10Eur, setCnyPer10Eur] = React.useState('60');
+                // 已选的日服特惠档位及份数（可多选，Coin 650 最多 4 份）
+                const [packQty, setPackQty] = React.useState({ c2700: 1, c7300: 1 });
+                // 已选的欧元卡档位及份数（可多选，不限份数）
+                const [euroPackQty, setEuroPackQty] = React.useState({});
+
+                // ---------- 核心获取 ----------
+                const fetchRate = async () => {
+                    setLoading(true);
+                    setError(null);
+                    setSourceInfo('');
+
+                    let usedEurSource = null;
+                    let usedCnySource = null;
+                    let eurRate = null;
+                    let cnyRate = null;
+                    let eurCnyValue = null;
+                    let eurLive = false;
+                    let cnyLive = false;
+
+                    const order = getSourcesInOrder(preferredSource);
+                    for (const key of order) {
+                        const api = API_SOURCES[key];
+                        const controller = new AbortController();
+                        const timeoutId = setTimeout(() => controller.abort(), 6000);
+                        try {
+                            const res = await fetch(api.url, { signal: controller.signal });
+                            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                            const data = await res.json();
+                            const parsed = api.parse(data);
+                            if (parsed && isValidRate(parsed.eur)) {
+                                eurRate = parsed.eur;
+                                usedEurSource = api.name;
+                                eurLive = true;
+                            }
+                            if (parsed && isValidRate(parsed.cny)) {
+                                cnyRate = parsed.cny;
+                                usedCnySource = api.name;
+                                cnyLive = true;
+                            }
+                            if (eurRate !== null && cnyRate !== null) break;
+                        } catch (err) {
+                            console.warn(`主源 "${api.name}" 失败:`, err.message);
+                        } finally {
+                            clearTimeout(timeoutId);
+                        }
+                    }
+
+                    if (cnyRate === null) {
+                        // 尝试专用 JPY→CNY 源
+                        const cnyApi = API_SOURCES_JPY_CNY.exchangerate;
+                        const controller = new AbortController();
+                        const timeoutId = setTimeout(() => controller.abort(), 6000);
+                        try {
+                            const res = await fetch(cnyApi.url, { signal: controller.signal });
+                            if (res.ok) {
+                                const data = await res.json();
+                                const rate = cnyApi.parse(data);
+                                if (isValidRate(rate)) {
+                                    cnyRate = rate;
+                                    usedCnySource = cnyApi.name;
+                                    cnyLive = true;
+                                }
+                            }
+                        } catch (err) {
+                            console.warn('JPY→CNY 专用源失败:', err.message);
+                        } finally {
+                            clearTimeout(timeoutId);
+                        }
+                    }
+
+                    if (cnyRate === null) {
+                        // 间接计算：JPY→EUR × EUR→CNY
+                        const eurCnyBase = eurRate !== null ? eurRate : (jpyToEurRate ?? FALLBACK_JPY_EUR);
+                        const controller = new AbortController();
+                        const timeoutId = setTimeout(() => controller.abort(), 6000);
+                        try {
+                            const url = 'https://api.exchangerate.host/latest?base=EUR&symbols=CNY';
+                            const res = await fetch(url, { signal: controller.signal });
+                            if (res.ok) {
+                                const data = await res.json();
+                                const eurCny = data?.rates?.CNY;
+                                if (isValidRate(eurCny)) {
+                                    eurCnyValue = eurCny;
+                                    cnyRate = eurCnyBase * eurCny;
+                                    usedCnySource = `间接 (EUR→CNY ${eurCny.toFixed(4)})`;
+                                    cnyLive = true;
+                                }
+                            }
+                        } catch (err) {
+                            console.warn('间接 EUR→CNY 失败:', err.message);
+                        } finally {
+                            clearTimeout(timeoutId);
+                        }
+                    }
+
+                    // 欧元汇率降级：实时失败 → 本地缓存 → 硬编码备选
+                    let usedCache = false;
+                    if (eurRate === null) {
+                        if (isValidRate(cache.eur)) {
+                            eurRate = cache.eur;
+                            usedEurSource = `本地缓存 (JPY→EUR · ${formatTime(cache.updatedAt)})`;
+                            usedCache = true;
+                        } else {
+                            eurRate = FALLBACK_JPY_EUR;
+                            usedEurSource = '备选 (JPY→EUR)';
+                        }
+                    }
+
+                    // 人民币汇率降级：实时失败 → 本地缓存 → 硬编码备选
+                    if (cnyRate === null) {
+                        if (isValidRate(cache.cny)) {
+                            cnyRate = cache.cny;
+                            usedCnySource = `本地缓存 (JPY→CNY · ${formatTime(cache.updatedAt)})`;
+                            usedCache = true;
+                        } else {
+                            cnyRate = FALLBACK_JPY_CNY;
+                            usedCnySource = '备选 (JPY→CNY)';
+                        }
+                    }
+
+                    const allLive = eurLive && cnyLive;
+                    const nextStatus = allLive ? 'live' : (usedCache ? 'cache' : 'fallback');
+                    const nowIso = new Date().toISOString();
+
+                    setJpyToEurRate(eurRate);
+                    setJpyToCnyRate(cnyRate);
+                    if (eurCnyValue !== null) setEurToCnyRate(eurCnyValue);
+                    setSourceInfo(`✅ JPY→EUR: ${usedEurSource} | JPY→CNY: ${usedCnySource}`);
+                    setRateStatus(nextStatus);
+
+                    if (allLive) {
+                        writeRateCache({
+                            jpyToEurRate: eurRate,
+                            jpyToCnyRate: cnyRate,
+                            eurToCnyRate: eurCnyValue,
+                            rateUpdatedAt: nowIso,
+                            usedEurSource,
+                            usedCnySource
+                        });
+                        setRateUpdatedAt(nowIso);
+                        setError(null);
+                    } else if (nextStatus === 'cache') {
+                        setError('当前使用本地缓存汇率（' + formatTime(rateUpdatedAt || cache.updatedAt) + '），可能不是最新');
+                    } else {
+                        setError('部分汇率使用备选值，可能不准确');
+                    }
+
+                    setLoading(false);
+                };
+
+                React.useEffect(() => {
+                    fetchRate();
+                    const timer = setInterval(fetchRate, 300000);
+                    return () => clearInterval(timer);
+                }, [preferredSource]);
+
+                // ---------- 计算 ----------
+                // 欧元卡：每 10 欧元扣多少人民币（用户手动输入）
+                const userCnyPer10Eur = parseFloat(cnyPer10Eur);
+                const validCnyPer10Eur = isNaN(userCnyPer10Eur) || userCnyPer10Eur < 0 ? 0 : userCnyPer10Eur;
+                const eurRateForCalc = jpyToEurRate ?? FALLBACK_JPY_EUR;
+
+                // ---------- 欧元卡档位 ----------
+                // 每档展示「理论单价」（不取整）
+                const euroPackList = EURO_PACKS.map(p => {
+                    const rawEur = p.yen * eurRateForCalc;
+                    const rmb = rawEur * (validCnyPer10Eur / 10);
+                    const cnyPerK = p.coins > 0 ? (rmb / p.coins) * 1000 : 0;
+                    return { ...p, rawEur, rmb, cnyPerK, qty: euroPackQty[p.id] || 0 };
+                });
+                const selectedEuro = euroPackList.filter(p => p.qty > 0);
+                const euroTotalQty = selectedEuro.reduce((sum, p) => sum + p.qty, 0);
+                const euroTotal = selectedEuro.reduce(
+                    (acc, p) => ({
+                        coins: acc.coins + p.coins * p.qty,
+                        yen: acc.yen + p.yen * p.qty
+                    }),
+                    { coins: 0, yen: 0 }
+                );
+                // 结算只能整 10 欧：先求欧元总额，再向上取整到整 10 欧
+                const euroRawTotalEur = euroTotal.yen * eurRateForCalc;
+                const euroSettleEur = Math.ceil(euroRawTotalEur / 10) * 10;
+                const euroTotalRmb = (euroSettleEur / 10) * validCnyPer10Eur;
+                const euroPerK = euroTotal.coins > 0 ? (euroTotalRmb / euroTotal.coins) * 1000 : 0;
+                const toggleEuroPack = (id) => {
+                    setEuroPackQty(prev => ({ ...prev, [id]: (prev[id] || 0) > 0 ? 0 : 1 }));
+                };
+                const changeEuroQty = (id, delta) => {
+                    setEuroPackQty(prev => {
+                        const cur = prev[id] || 0;
+                        return { ...prev, [id]: Math.max(1, cur + delta) };
+                    });
+                };
+
+                // ---------- 日服特惠档位 ----------
+                const cnyRate = jpyToCnyRate ?? FALLBACK_JPY_CNY;
+                const packList = SALE_PACKS.map(p => {
+                    const coins = p.paid + p.free;
+                    const perK = (p.jpy / coins) * 1000;
+                    return { ...p, coins, perK, cnyPerK: perK * cnyRate, qty: packQty[p.id] || 0 };
+                });
+                const bestPackId = packList.reduce((best, p) => (!best || p.perK < best.perK) ? p : best, null)?.id;
+                const selected = packList.filter(p => p.qty > 0);
+                const totalQty = selected.reduce((sum, p) => sum + p.qty, 0);
+                const packTotal = selected.reduce(
+                    (acc, p) => ({
+                        coins: acc.coins + p.coins * p.qty,
+                        jpy: acc.jpy + p.jpy * p.qty,
+                        paid: acc.paid + p.paid * p.qty,
+                        free: acc.free + p.free * p.qty
+                    }),
+                    { coins: 0, jpy: 0, paid: 0, free: 0 }
+                );
+                const packTotalCny = packTotal.jpy * cnyRate;
+                const packPerK = packTotal.coins > 0 ? (packTotalCny / packTotal.coins) * 1000 : 0;
+                const togglePack = (id) => {
+                    setPackQty(prev => ({ ...prev, [id]: (prev[id] || 0) > 0 ? 0 : 1 }));
+                };
+                const changeQty = (id, delta) => {
+                    const pack = SALE_PACKS.find(p => p.id === id);
+                    const max = pack ? pack.maxQty : 1;
+                    setPackQty(prev => {
+                        const cur = prev[id] || 0;
+                        return { ...prev, [id]: Math.min(max, Math.max(1, cur + delta)) };
+                    });
+                };
+
+                // 顶栏汇率：用更直观的口径展示
+                const rateBannerLabel = payMode === 'euro' ? '💱 自动汇率（日元 → 欧元）' : '💱 自动汇率（日元 → 人民币）';
+                const rateBannerText = payMode === 'euro'
+                    ? `1 EUR ≈ ${(1 / (jpyToEurRate ?? FALLBACK_JPY_EUR)).toFixed(1)} 日元`
+                    : `100 日元 ≈ CN¥${((jpyToCnyRate ?? FALLBACK_JPY_CNY) * 100).toFixed(2)}`;
+                const rateReady = payMode === 'euro' ? jpyToEurRate !== null : jpyToCnyRate !== null;
+                const bannerValue = rateReady ? rateBannerText : '加载中...';
+
+                const rateStatusText = rateStatus === 'live' ? '实时汇率'
+                    : rateStatus === 'cache' ? '缓存汇率'
+                    : rateStatus === 'fallback' ? '备选汇率' : '加载中';
+                const rateUpdatedText = formatTime(rateUpdatedAt);
+
+                // 主指标：每 1000 金币折合人民币（两种支付方式共用）
+                const heroPerK = payMode === 'euro' ? euroPerK : packPerK;
+                const noSelection = (payMode === 'yen' && selected.length === 0) || (payMode === 'euro' && selectedEuro.length === 0);
+
+                // ---------- 输入处理 ----------
+                const handleCnyPer10EurChange = (ev) => {
+                    const val = ev.target.value;
+                    if (val === '' || /^\d*\.?\d*$/.test(val)) {
+                        setCnyPer10Eur(val);
+                    }
+                };
+                // 失焦规范化：去前导零、去尾随小数点，负数归零
+                const handleCnyPer10EurBlur = () => {
+                    setCnyPer10Eur(prev => {
+                        const raw = String(prev).trim();
+                        if (raw === '' || raw === '.' || raw === '-') return raw === '' ? '' : '0';
+                        const n = parseFloat(raw);
+                        if (isNaN(n) || n < 0) return '0';
+                        return String(n);
+                    });
+                };
+
+                const hl = (text) => e('span', { className: 'highlight' }, text);
+
+                // ---------- 渲染 ----------
+                return e('div', { className: 'app-container' },
+                    e('header', null,
+                        e('h1', null, '⚽ eFootball 金币比价'),
+                        e('div', { className: 'subtitle' },
+                            payMode === 'yen' ? '勾选日服特惠档位 · 实时汇率折算' : '勾选欧元卡档位 · 实时汇率折算')
+                    ),
+
+                    e('div', { className: 'tab-bar' },
+                        e('button', { className: 'tab-btn ' + (payMode === 'euro' ? 'active' : ''), onClick: () => setPayMode('euro') }, '💳 欧元卡'),
+                        e('button', { className: 'tab-btn ' + (payMode === 'yen' ? 'active' : ''), onClick: () => setPayMode('yen') }, '🎌 日元直购')
+                    ),
+
+                    error ? e('div', { className: 'error-banner' },
+                        '⚠️ ' + error + ' ',
+                        e('button', { onClick: fetchRate }, '重试')
+                    ) : null,
+
+                    e('div', { className: 'rate-banner', 'aria-live': 'polite' },
+                        e('span', { className: 'label' }, rateBannerLabel),
+                        e('span', { className: 'value' }, bannerValue),
+                        e('span', { className: 'rate-status-chip' }, rateStatusText),
+                        e('button', { className: 'refresh-btn', onClick: fetchRate, disabled: loading },
+                            loading ? '刷新中…' : '刷新')
+                    ),
+
+                    e('details', { className: 'advanced' },
+                        e('summary', null, '⚙️ 高级设置（汇率数据源）'),
+                        e('div', { className: 'source-selector' },
+                            e('label', { htmlFor: 'sourceSelect' }, '📡 首选数据源：'),
+                            e('select', {
+                                id: 'sourceSelect',
+                                value: preferredSource,
+                                onChange: (ev) => setPreferredSource(ev.target.value),
+                                disabled: loading
+                            },
+                                e('option', { value: 'cloudflare' }, 'Cloudflare Pages (推荐)'),
+                                e('option', { value: 'jsdelivr' }, 'jsDelivr CDN (备选)'),
+                                e('option', { value: 'exchangerate' }, 'exchangerate.host (ECB)')
+                            ),
+                            e('span', { style: { fontSize: '12px', color: '#6b7280' } }, '(切换后自动刷新)')
+                        ),
+                        e('div', { className: 'source-info', 'aria-live': 'polite' }, sourceInfo),
+                        e('div', { className: 'source-info' }, '汇率状态：' + rateStatusText + ' · 上次成功更新：' + rateUpdatedText)
+                    ),
+
+                    payMode === 'euro' ? e('div', { className: 'card' },
+                        e('span', { className: 'label' }, '💳 欧元卡档位（点击可多选）'),
+                        e('div', { className: 'pack-list' },
+                            euroPackList.map(p => {
+                                const isSel = p.qty > 0;
+                                return e('div', {
+                                    key: p.id,
+                                    className: 'pack-item ' + (isSel ? 'selected' : ''),
+                                    role: 'checkbox',
+                                    'aria-checked': isSel,
+                                    tabIndex: 0,
+                                    'aria-label': `${p.coins.toLocaleString()} 金币，JP¥${p.yen.toLocaleString()}`,
+                                    onClick: () => toggleEuroPack(p.id),
+                                    onKeyDown: (ev) => {
+                                        if (ev.target !== ev.currentTarget) return;
+                                        if (ev.key === ' ' || ev.key === 'Enter') {
+                                            ev.preventDefault();
+                                            toggleEuroPack(p.id);
+                                        }
+                                    }
+                                },
+                                    e('div', { className: 'pack-row' },
+                                        e('div', { className: 'check' }, isSel ? '✓' : ''),
+                                        e('div', { className: 'pack-main' },
+                                            e('div', { className: 'pack-name' }, `${p.coins.toLocaleString()} 金币`),
+                                            e('div', { className: 'pack-meta' },
+                                                `JP¥${p.yen.toLocaleString()} ≈ €${p.rawEur.toFixed(2)} ≈ CN¥${p.rmb.toFixed(2)}`)
+                                        ),
+                                        e('div', { className: 'pack-price' },
+                                            e('div', { className: 'jpy' }, `JP¥${p.yen.toLocaleString()}`),
+                                            e('div', { className: 'per' }, `≈CN¥${p.cnyPerK.toFixed(0)}/千币`)
+                                        )
+                                    ),
+                                    isSel ? e('div', { className: 'qty-row', onClick: (ev) => ev.stopPropagation() },
+                                        e('span', { className: 'qty-label' }, '购买份数'),
+                                        e('button', { onClick: () => changeEuroQty(p.id, -1), disabled: p.qty <= 1, 'aria-label': '减少' }, '−'),
+                                        e('span', { className: 'qty-val' }, `×${p.qty}`),
+                                        e('button', { onClick: () => changeEuroQty(p.id, 1), 'aria-label': '增加' }, '+'),
+                                        e('span', { className: 'qty-sub' },
+                                            `小计 JP¥${(p.yen * p.qty).toLocaleString()} · ${(p.coins * p.qty).toLocaleString()} 币`)
+                                    ) : null
+                                );
+                            })
+                        ),
+                        e('div', { style: { fontSize: '12px', color: '#94a3b8', marginTop: '10px', textAlign: 'center', lineHeight: 1.6 } },
+                            '数据来源：KONAMI 官方商店（欧元卡）· 实时汇率自动获取',
+                            e('br'),
+                            '每档标注为理论单价；实际结算按整 10 欧向上取整（见下方结果）',
+                            e('br'),
+                            '档位价格最后核对日期：' + PACK_DATA_VERIFIED_AT
+                        )
+                    ) : null,
+
+                    payMode === 'euro' ? e('div', { className: 'card' },
+                        e('span', { className: 'label' }, '💳 淘宝：每 10 欧元扣多少人民币'),
+                        e('div', { className: 'input-group' },
+                            e('input', {
+                                type: 'text',
+                                inputMode: 'decimal',
+                                value: cnyPer10Eur,
+                                onChange: handleCnyPer10EurChange,
+                                onBlur: handleCnyPer10EurBlur,
+                                placeholder: '60',
+                                'aria-label': '每 10 欧元扣多少人民币'
+                            }),
+                            e('span', { className: 'unit-label' }, 'CN¥ / 10€')
+                        ),
+                        e('div', { style: { fontSize: '12px', color: '#94a3b8', marginTop: '6px' } },
+                            '按淘宝的实际售价填，默认 60（即 1 欧元 = 6 元）')
+                    ) : null,
+
+                    payMode === 'yen' ? e('div', { className: 'card' },
+                        e('span', { className: 'label' }, '🎌 日服特惠档位（点击可多选）'),
+                        e('div', { className: 'pack-list' },
+                            packList.map(p => {
+                                const isSel = p.qty > 0;
+                                return e('div', {
+                                    key: p.id,
+                                    className: 'pack-item ' + (isSel ? 'selected' : ''),
+                                    role: 'checkbox',
+                                    'aria-checked': isSel,
+                                    tabIndex: 0,
+                                    'aria-label': `${p.name}，${p.coins.toLocaleString()} 金币，JP¥${p.jpy}`,
+                                    onClick: () => togglePack(p.id),
+                                    onKeyDown: (ev) => {
+                                        if (ev.target !== ev.currentTarget) return;
+                                        if (ev.key === ' ' || ev.key === 'Enter') {
+                                            ev.preventDefault();
+                                            togglePack(p.id);
+                                        }
+                                    }
+                                },
+                                    e('div', { className: 'pack-row' },
+                                        e('div', { className: 'check' }, isSel ? '✓' : ''),
+                                        e('div', { className: 'pack-main' },
+                                            e('div', { className: 'pack-name' },
+                                                e('span', { className: 'pack-badge' }, 'SALE'),
+                                                p.name,
+                                                p.id === bestPackId ? e('span', { className: 'pack-badge best-badge' }, '最划算') : null
+                                            ),
+                                            e('div', { className: 'pack-meta' },
+                                                `${p.paid.toLocaleString()} 有偿 + ${p.free.toLocaleString()} 无偿 = ${p.coins.toLocaleString()} 金币`),
+                                            e('div', { className: 'pack-meta' }, `商店限购 ${p.maxQty} 次`)
+                                        ),
+                                        e('div', { className: 'pack-price' },
+                                            e('div', { className: 'jpy' }, `JP¥${p.jpy.toLocaleString()}`),
+                                            e('div', { className: 'per' }, `≈CN¥${p.cnyPerK.toFixed(0)}/千币`)
+                                        )
+                                    ),
+                                    (isSel && p.maxQty > 1) ? e('div', { className: 'qty-row', onClick: (ev) => ev.stopPropagation() },
+                                        e('span', { className: 'qty-label' }, `购买份数（最多 ${p.maxQty} 份）`),
+                                        e('button', { onClick: () => changeQty(p.id, -1), disabled: p.qty <= 1, 'aria-label': '减少' }, '−'),
+                                        e('span', { className: 'qty-val' }, `×${p.qty}`),
+                                        e('button', { onClick: () => changeQty(p.id, 1), disabled: p.qty >= p.maxQty, 'aria-label': '增加' }, '+'),
+                                        e('span', { className: 'qty-sub' },
+                                            `小计 JP¥${(p.jpy * p.qty).toLocaleString()} · ${(p.coins * p.qty).toLocaleString()} 币`)
+                                    ) : null
+                                );
+                            })
+                        ),
+                        e('div', { style: { fontSize: '12px', color: '#94a3b8', marginTop: '10px', textAlign: 'center', lineHeight: 1.6 } },
+                            '数据来源：KONAMI 官方商店 store.konami.net（日服）',
+                            e('br'),
+                            `1 日元 ≈ ${cnyRate.toFixed(6)} 人民币 · 实时汇率自动获取`,
+                            e('br'),
+                            '档位价格最后核对日期：' + PACK_DATA_VERIFIED_AT
+                        )
+                    ) : null,
+
+                    e('div', { className: 'result-box', 'aria-live': 'polite' },
+                        e('span', { className: 'label' }, '💰 每 1,000 金币折合人民币'),
+
+                        e('div', { className: 'result-single' },
+                            noSelection
+                                ? e('span', { style: { fontSize: '20px', fontWeight: 500, color: '#94a3b8' } }, '请先选择档位')
+                                : e(F, null, e('span', { className: 'currency' }, 'CN¥'), heroPerK.toFixed(2))
+                        ),
+
+                        payMode === 'euro' ? e(F, null,
+                            e('div', { className: 'detail-row' },
+                                e('span', null, '🪙 合计 ', hl(euroTotal.coins.toLocaleString()), ' 金币 · 已选 ',
+                                    hl(String(selectedEuro.length)), ' 档 ', hl(String(euroTotalQty)), ' 份')),
+                            e('div', { className: 'detail-row' },
+                                e('span', null, '💶 需付 JP¥', hl(euroTotal.yen.toLocaleString()), ' → 理论 €',
+                                    hl(euroRawTotalEur.toFixed(2)), ' → 整10欧结算 €', hl(euroSettleEur.toLocaleString()))),
+                            e('div', { className: 'detail-row' },
+                                e('span', null, '💳 淘宝按 ',
+                                    hl(validCnyPer10Eur + ' 元 / 10€'),
+                                    '：实际 ≈ ', hl('CN¥' + euroTotalRmb.toFixed(2))))
+                        ) : e(F, null,
+                            e('div', { className: 'detail-row' },
+                                e('span', null, '🪙 合计 ', hl(packTotal.coins.toLocaleString()), ' 金币 · 已选 ',
+                                    hl(String(selected.length)), ' 档 ', hl(String(totalQty)), ' 份')),
+                            e('div', { className: 'detail-row' },
+                                e('span', null, '💴 需付 JP¥', hl(packTotal.jpy.toLocaleString()), ' ≈ ',
+                                    hl('CN¥' + packTotalCny.toFixed(2))))
+                        )
+                    ),
+
+                    e('div', { className: 'footnote' },
+                        `汇率数据：优先直接获取 JPY→CNY，若不可用则间接换算 · 备选 JPY/CNY: ${FALLBACK_JPY_CNY}`,
+                        e('br'),
+                        `档位价格最后核对日期：${PACK_DATA_VERIFIED_AT}，实际购买前请以 KONAMI 官方商店为准`,
+                        e('br'),
+                        e('span', { className: 'byline' }, 'by guiqulaixi')
+                    )
+                );
+            }
+
+            const root = ReactDOM.createRoot(document.getElementById('root'));
+            root.render(e(App));
+        })();
+    </script>
+</body>
+</html>
