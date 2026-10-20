@@ -316,13 +316,19 @@
             { id: 'c7300', name: 'Coin 7300', jpy: 4800, paid: 3900, free: 3400, maxQty: 1 },
         ];
 
-        // 欧元卡常用金币档位快捷按钮（1 金币 = 1 日元）
-        const EURO_QUICK_AMOUNTS = [12000, 24000, 36000];
+        // 欧元卡金币档位（日元价 · KONAMI 欧元商店）
+        const EURO_PACKS = [
+            { id: 'e100',   coins: 100,   yen: 120 },
+            { id: 'e520',   coins: 520,   yen: 610 },
+            { id: 'e1050',  coins: 1050,  yen: 1220 },
+            { id: 'e2150',  coins: 2150,  yen: 2440 },
+            { id: 'e3300',  coins: 3300,  yen: 3680 },
+            { id: 'e5800',  coins: 5800,  yen: 6100 },
+            { id: 'e12000', coins: 12000, yen: 12000 },
+        ];
 
         function App() {
             // ---------- 状态 ----------
-            // coinAmount 允许为 ''（空字符串）或数字
-            const [coinAmount, setCoinAmount] = React.useState(12000);
             const [jpyToEurRate, setJpyToEurRate] = React.useState(null);
             const [jpyToCnyRate, setJpyToCnyRate] = React.useState(null);
             const [eurToCnyRate, setEurToCnyRate] = React.useState(null);
@@ -337,6 +343,8 @@
             const [cnyPer10Eur, setCnyPer10Eur] = React.useState('60');
             // 已选的日服特惠档位及份数（可多选，Coin 650 最多 4 份）
             const [packQty, setPackQty] = React.useState({ c2700: 1, c7300: 1 });
+            // 已选的欧元卡档位及份数（可多选，不限份数）
+            const [euroPackQty, setEuroPackQty] = React.useState({});
 
             const FALLBACK_JPY_EUR = 0.0054;
             const FALLBACK_JPY_CNY = 0.0414;
@@ -487,311 +495,15 @@
             }, [preferredSource]);
 
             // ---------- 计算 ----------
-            const getJpyAmount = () => Number(coinAmount) || 0;
+            // 欧元卡：每 10 欧元扣多少人民币（用户手动输入）
+            const userCnyPer10Eur = parseFloat(cnyPer10Eur);
+            const validCnyPer10Eur = isNaN(userCnyPer10Eur) || userCnyPer10Eur < 0 ? 0 : userCnyPer10Eur;
+            const eurRateForCalc = jpyToEurRate ?? FALLBACK_JPY_EUR;
 
-            const calculateEuro = () => {
-                const jpyAmount = getJpyAmount();
-                const rate = jpyToEurRate ?? FALLBACK_JPY_EUR;
-                const rawEur = jpyAmount * rate;
-                const roundedEur = Math.ceil(rawEur / 10) * 10;
-                const cnyRate = parseFloat(cnyPer10Eur);
-                const validRate = isNaN(cnyRate) || cnyRate < 0 ? 0 : cnyRate;
-                const rawCny = (rawEur / 10) * validRate;
-                const roundedCny = (roundedEur / 10) * validRate;
-                return { jpy: jpyAmount, rawEur, roundedEur, rawCny, roundedCny };
-            };
-
-            const euroResult = calculateEuro();
-            // 欧元卡：每 1000 金币实际需付的人民币（按向上取整后的欧元折算）
-            const euroPerK = euroResult.jpy > 0 ? (euroResult.roundedCny / euroResult.jpy) * 1000 : 0;
-
-            // ---------- 日服特惠档位 ----------
-            const cnyRate = jpyToCnyRate ?? FALLBACK_JPY_CNY;
-            const packList = SALE_PACKS.map(p => {
-                const coins = p.paid + p.free;
-                const perK = (p.jpy / coins) * 1000;
-                return { ...p, coins, perK, cnyPerK: perK * cnyRate, qty: packQty[p.id] || 0 };
-            });
-            const bestPackId = packList.reduce((best, p) => (!best || p.perK < best.perK) ? p : best, null)?.id;
-            const selected = packList.filter(p => p.qty > 0);
-            const totalQty = selected.reduce((sum, p) => sum + p.qty, 0);
-            const packTotal = selected.reduce(
-                (acc, p) => ({
-                    coins: acc.coins + p.coins * p.qty,
-                    jpy: acc.jpy + p.jpy * p.qty,
-                    paid: acc.paid + p.paid * p.qty,
-                    free: acc.free + p.free * p.qty,
-                }),
-                { coins: 0, jpy: 0, paid: 0, free: 0 }
-            );
-            const packTotalCny = packTotal.jpy * cnyRate;
-            const packPerK = packTotal.coins > 0 ? (packTotalCny / packTotal.coins) * 1000 : 0;
-            const togglePack = (id) => {
-                setPackQty(prev => ({ ...prev, [id]: (prev[id] || 0) > 0 ? 0 : 1 }));
-            };
-            const changeQty = (id, delta) => {
-                const pack = SALE_PACKS.find(p => p.id === id);
-                const max = pack ? pack.maxQty : 1;
-                setPackQty(prev => {
-                    const cur = prev[id] || 0;
-                    return { ...prev, [id]: Math.min(max, Math.max(1, cur + delta)) };
-                });
-            };
-
-            // 顶栏汇率：用更直观的口径展示
-            const rateBannerLabel = payMode === 'euro' ? '💱 自动汇率（日元 → 欧元）' : '💱 自动汇率（日元 → 人民币）';
-            const rateBannerText = payMode === 'euro'
-                ? `1 EUR ≈ ${(1 / (jpyToEurRate ?? FALLBACK_JPY_EUR)).toFixed(1)} 日元`
-                : `100 日元 ≈ CN¥${((jpyToCnyRate ?? FALLBACK_JPY_CNY) * 100).toFixed(2)}`;
-
-            // 主指标：每 1000 金币折合人民币（两种支付方式共用）
-            const heroPerK = payMode === 'euro' ? euroPerK : packPerK;
-
-            // ---------- 输入处理 ----------
-            const handleCoinChange = (e) => {
-                const val = e.target.value;
-                if (val === '') {
-                    setCoinAmount('');
-                } else {
-                    const num = parseInt(val, 10);
-                    if (!isNaN(num) && num >= 0) {
-                        setCoinAmount(num);
-                    }
-                    // 如果输入非法字符（如字母），忽略
-                }
-            };
-
-            const handleCnyPer10EurChange = (e) => {
-                const val = e.target.value;
-                if (val === '' || /^-?\d*\.?\d*$/.test(val)) {
-                    setCnyPer10Eur(val);
-                }
-            };
-
-            // ---------- 渲染 ----------
-            return (
-                <div className="app-container">
-                    <header>
-                        <h1>⚽ eFootball 金币比价</h1>
-                        <div className="subtitle">
-                            {payMode === 'yen'
-                                ? '勾选日服特惠档位 · 实时汇率折算'
-                                : '输入金币数 · 按欧元卡折算'}
-                        </div>
-                    </header>
-
-                    <div className="tab-bar">
-                        <button
-                            className={`tab-btn ${payMode === 'euro' ? 'active' : ''}`}
-                            onClick={() => setPayMode('euro')}
-                        >
-                            💳 欧元卡
-                        </button>
-                        <button
-                            className={`tab-btn ${payMode === 'yen' ? 'active' : ''}`}
-                            onClick={() => setPayMode('yen')}
-                        >
-                            🎌 日元直购
-                        </button>
-                    </div>
-
-                    {error && (
-                        <div className="error-banner">
-                            ⚠️ {error} <button onClick={fetchRate}>重试</button>
-                        </div>
-                    )}
-
-                    <div className="rate-banner">
-                        <span className="label">{rateBannerLabel}</span>
-                        <span className="value">
-                            {loading ? '加载中...' : rateBannerText}
-                        </span>
-                        <button className="refresh-btn" onClick={fetchRate} disabled={loading}>
-                            {loading ? '↻' : '刷新'}
-                        </button>
-                    </div>
-
-                    <details className="advanced">
-                        <summary>⚙️ 高级设置（汇率数据源）</summary>
-                        <div className="source-selector">
-                            <label htmlFor="sourceSelect">📡 首选数据源：</label>
-                            <select
-                                id="sourceSelect"
-                                value={preferredSource}
-                                onChange={(e) => setPreferredSource(e.target.value)}
-                                disabled={loading}
-                            >
-                                <option value="cloudflare">Cloudflare Pages (推荐)</option>
-                                <option value="jsdelivr">jsDelivr CDN (备选)</option>
-                                <option value="exchangerate">exchangerate.host (ECB)</option>
-                            </select>
-                            <span style={{ fontSize: '12px', color: '#6b7280' }}>(切换后自动刷新)</span>
-                        </div>
-                        <div className="source-info">{sourceInfo}</div>
-                    </details>
-
-                    {payMode === 'euro' && (
-                        <div className="card">
-                            <span className="label">🪙 金币数量（1 金币 = 1 日元）</span>
-                            <div className="input-group">
-                                <input
-                                    type="number"
-                                    value={coinAmount}
-                                    onChange={handleCoinChange}
-                                    min="0"
-                                    step="100"
-                                    placeholder="输入数量"
-                                />
-                                <span className="unit-label">金币</span>
-                            </div>
-                            <div className="quick-row">
-                                {EURO_QUICK_AMOUNTS.map(v => (
-                                    <button
-                                        key={v}
-                                        className={`quick-chip ${Number(coinAmount) === v ? 'active' : ''}`}
-                                        onClick={() => setCoinAmount(v)}
-                                    >
-                                        {v.toLocaleString()}
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-                    )}
-
-                    {payMode === 'euro' && (
-                        <div className="card">
-                            <span className="label">💳 淘宝：每 10 欧元扣多少人民币</span>
-                            <div className="input-group">
-                                <input
-                                    type="text"
-                                    inputMode="decimal"
-                                    value={cnyPer10Eur}
-                                    onChange={handleCnyPer10EurChange}
-                                    placeholder="60"
-                                />
-                                <span className="unit-label">CN¥ / 10€</span>
-                            </div>
-                            <div style={{ fontSize: '12px', color: '#94a3b8', marginTop: '6px' }}>
-                                按淘宝的实际售价填，默认 60（即 1 欧元 = 6 元）
-                            </div>
-                        </div>
-                    )}
-
-                    {payMode === 'yen' && (
-                        <div className="card">
-                            <span className="label">🎌 日服特惠档位（点击可多选）</span>
-                            <div className="pack-list">
-                                {packList.map(p => {
-                                    const isSel = p.qty > 0;
-                                    return (
-                                        <div
-                                            key={p.id}
-                                            className={`pack-item ${isSel ? 'selected' : ''}`}
-                                            role="checkbox"
-                                            aria-checked={isSel}
-                                            tabIndex={0}
-                                            aria-label={`${p.name}，${p.coins.toLocaleString()} 金币，JP¥${p.jpy}`}
-                                            onClick={() => togglePack(p.id)}
-                                            onKeyDown={(e) => {
-                                                if (e.target !== e.currentTarget) return;
-                                                if (e.key === ' ' || e.key === 'Enter') {
-                                                    e.preventDefault();
-                                                    togglePack(p.id);
-                                                }
-                                            }}
-                                        >
-                                            <div className="pack-row">
-                                                <div className="check">{isSel ? '✓' : ''}</div>
-                                                <div className="pack-main">
-                                                    <div className="pack-name">
-                                                        <span className="pack-badge">SALE</span>
-                                                        {p.name}
-                                                        {p.id === bestPackId && (
-                                                            <span className="pack-badge best-badge">最划算</span>
-                                                        )}
-                                                    </div>
-                                                    <div className="pack-meta">
-                                                        {p.paid.toLocaleString()} 有偿 + {p.free.toLocaleString()} 无偿 = {p.coins.toLocaleString()} 金币
-                                                    </div>
-                                                    <div className="pack-meta">商店限购 {p.maxQty} 次</div>
-                                                </div>
-                                                <div className="pack-price">
-                                                    <div className="jpy">JP¥{p.jpy.toLocaleString()}</div>
-                                                    <div className="per">≈CN¥{p.cnyPerK.toFixed(0)}/千币</div>
-                                                </div>
-                                            </div>
-                                            {isSel && p.maxQty > 1 && (
-                                                <div className="qty-row" onClick={(e) => e.stopPropagation()}>
-                                                    <span className="qty-label">购买份数（最多 {p.maxQty} 份）</span>
-                                                    <button
-                                                        onClick={() => changeQty(p.id, -1)}
-                                                        disabled={p.qty <= 1}
-                                                        aria-label="减少"
-                                                    >−</button>
-                                                    <span className="qty-val">×{p.qty}</span>
-                                                    <button
-                                                        onClick={() => changeQty(p.id, 1)}
-                                                        disabled={p.qty >= p.maxQty}
-                                                        aria-label="增加"
-                                                    >+</button>
-                                                    <span className="qty-sub">
-                                                        小计 JP¥{(p.jpy * p.qty).toLocaleString()} · {(p.coins * p.qty).toLocaleString()} 币
-                                                    </span>
-                                                </div>
-                                            )}
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                            <div style={{ fontSize: '12px', color: '#94a3b8', marginTop: '10px', textAlign: 'center', lineHeight: 1.6 }}>
-                                数据来源：KONAMI 官方商店 store.konami.net（日服）<br />
-                                1 日元 ≈ {cnyRate.toFixed(6)} 人民币 · 实时汇率自动获取
-                            </div>
-                        </div>
-                    )}
-
-                    <div className="result-box">
-                        <span className="label">💰 每 1,000 金币折合人民币</span>
-
-                        <div className="result-single">
-                            {(payMode === 'yen' && selected.length === 0) ? (
-                                <span style={{ fontSize: '20px', fontWeight: 500, color: '#94a3b8' }}>请先选择档位</span>
-                            ) : (
-                                <><span className="currency">CN¥</span>{heroPerK.toFixed(2)}</>
-                            )}
-                        </div>
-
-                        {payMode === 'euro' ? (
-                            <>
-                                <div className="detail-row">
-                                    <span>💶 JP¥{euroResult.jpy.toLocaleString()} → <span className="highlight">{euroResult.roundedEur}</span> EUR（向上取整）</span>
-                                </div>
-                                <div className="detail-row">
-                                    <span>💳 淘宝按 <span className="highlight">{cnyPer10Eur === '' ? 0 : cnyPer10Eur} 元 / 10€</span>：实际 ≈ <span className="highlight">CN¥{euroResult.rawCny.toFixed(2)}</span> → 向上取整 ≈ <span className="highlight">CN¥{euroResult.roundedCny.toFixed(2)}</span></span>
-                                </div>
-                            </>
-                        ) : (
-                            <>
-                                <div className="detail-row">
-                                    <span>🪙 合计 <span className="highlight">{packTotal.coins.toLocaleString()}</span> 金币 · 已选 <span className="highlight">{selected.length}</span> 档 <span className="highlight">{totalQty}</span> 份</span>
-                                </div>
-                                <div className="detail-row">
-                                    <span>💴 需付 JP¥<span className="highlight">{packTotal.jpy.toLocaleString()}</span> ≈ <span className="highlight">CN¥{packTotalCny.toFixed(2)}</span></span>
-                                </div>
-                            </>
-                        )}
-                    </div>
-
-                    <div className="footnote">
-                        汇率数据：优先直接获取 JPY→CNY，若不可用则间接换算 · 备选 JPY/CNY: {FALLBACK_JPY_CNY}<br />
-                        <span className="byline">by guiqulaixi</span>
-                    </div>
-                </div>
-            );
-        }
-
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<App />);
-    </script>
-</body>
-</html>
+            // ---------- 欧元卡档位 ----------
+            // 每档展示「理论单价」（不取整）
+            const euroPackList = EURO_PACKS.map(p => {
+                const rawEur = p.yen * eurRateForCalc;
+                const rmb = rawEur * (validCnyPer10Eur / 10);
+                const cnyPerK = p.coins > 0 ? (rmb / p.coins) * 1000 : 0;
+   
