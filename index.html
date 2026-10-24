@@ -87,7 +87,6 @@
             transition: all 0.3s ease;
         }
 
-        /* 针对 PC 大屏桌面布局优化 */
         @media (min-width: 868px) {
             body { padding: 40px 20px; }
             .app-container {
@@ -411,17 +410,20 @@
                 { id: 'c7300', name: 'Coin 7300', jpy: 4800, paid: 3900, free: 3400, maxQty: 1 }
             ];
 
+            // 更新后的 Steam 商店 9 个档位数据
             const EURO_PACKS = [
                 { id: 'e100',   coins: 100,   yen: 120 },
-                { id: 'e520',   coins: 520,   yen: 610 },
-                { id: 'e1050',  coins: 1050,  yen: 1220 },
-                { id: 'e2150',  coins: 2150,  yen: 2440 },
-                { id: 'e3300',  coins: 3300,  yen: 3680 },
-                { id: 'e5800',  coins: 5800,  yen: 6100 },
-                { id: 'e12000', coins: 12000, yen: 12000 }
+                { id: 'e300',   coins: 300,   yen: 360 },
+                { id: 'e500',   coins: 500,   yen: 590 },
+                { id: 'e1000',  coins: 1000,  yen: 1160 },
+                { id: 'e2000',  coins: 2000,  yen: 2280 },
+                { id: 'e3000',  coins: 3000,  yen: 3300 },
+                { id: 'e5000',  coins: 5000,  yen: 5300 },
+                { id: 'e10000', coins: 10000, yen: 10000 },
+                { id: 'e15000', coins: 15000, yen: 14800 }
             ];
 
-            const PACK_DATA_VERIFIED_AT = '2026-10-20';
+            const PACK_DATA_VERIFIED_AT = '2026-10-22';
             const FALLBACK_JPY_EUR = 0.0054;
             const FALLBACK_JPY_CNY = 0.0414;
             const RATE_CACHE_KEY = 'efootball_rate_cache_v3';
