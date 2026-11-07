@@ -856,121 +856,258 @@
                     copyText(text);
                 };
 
-                // 生成微信读书风格的典雅卡片海报
-                const handleGeneratePoster = () => {
+                // 生成「单向历 / 微信读书」风格的纪念票据（2x Retina + 齿孔票根）
+                const handleGeneratePoster = async () => {
                     if (noSelection) return showToast('请先勾选档位以供生成');
+
+                    // 1. 先显式请求衬线字体并等待加载完成，避免 Canvas 提前落笔回退到系统宋体 / Times
+                    if (document.fonts && document.fonts.load) {
+                        try {
+                            await Promise.all([
+                                document.fonts.load('600 40px "Newsreader"'),
+                                document.fonts.load('500 13px "Newsreader"'),
+                                document.fonts.load('600 21px "Noto Serif SC"')
+                            ]);
+                            await document.fonts.ready;
+                        } catch (_) { /* 字体服务不可达时退回 Georgia / 宋体，不阻断出图 */ }
+                    }
+
                     const canvas = document.getElementById('posterCanvas');
+                    if (!canvas) return;
                     const ctx = canvas.getContext('2d');
-                    
-                    const items = payMode === 'euro' ? selectedEuro : selectedYen;
-                    const baseHeight = 560;
-                    const itemsHeight = items.length * 44;
-                    const totalHeight = baseHeight + itemsHeight;
+                    if (!ctx) return;
 
-                    canvas.width = 640;
-                    canvas.height = totalHeight;
+                    // 2. 高清画布：最低 2 倍像素密度，上限 3 倍以免导出过大卡顿
+                    const dpr = Math.min(Math.max(Math.round(window.devicePixelRatio || 1), 2), 3);
 
-                    // 绘制米纸质感背景
-                    ctx.fillStyle = '#F7F6F2';
-                    ctx.fillRect(0, 0, 640, totalHeight);
+                    const SANS = '-apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", sans-serif';
+                    const SERIF = '"Newsreader", "Charter", Georgia, "Times New Roman", serif';
+                    const CJK = '"Noto Serif SC", "Source Han Serif SC", "Songti SC", serif';
 
-                    // 内衬优雅纸卡
+                    const isEuro = payMode === 'euro';
+                    const items = isEuro ? selectedEuro : selectedYen;
+                    const rowH = 38;
+
+                    // —— 版面网格 ——
+                    const PAD = 26;
+                    const cardX = PAD;
+                    const cardY = PAD;
+                    const cardW = 408;
+                    const innerL = cardX + 24;
+                    const innerR = cardX + cardW - 24;
+                    const midX = cardX + cardW / 2;
+
+                    const line1Y = cardY + 104;
+                    const tableHeadY = line1Y + 22;
+                    const firstRowY = line1Y + 44;
+                    const notchY = firstRowY + (items.length - 1) * rowH + 30;
+
+                    const amountLabelY = notchY + 34;
+                    const amountY = notchY + 82;
+                    const coinsY = notchY + 108;
+
+                    const showRemainder = isEuro && euroRemainderEur > 0;
+                    const breakdownTop = notchY + 126;
+                    const breakdownH = isEuro ? (showRemainder ? 60 : 38) : 0;
+                    const contentBottom = isEuro ? breakdownTop + breakdownH : coinsY;
+
+                    // 卡片高度由内容推算，避免底部留下大块空白
+                    const cardH = contentBottom - cardY + 68;
+                    const logicalW = cardW + PAD * 2;
+                    const logicalH = cardH + PAD * 2;
+
+                    canvas.width = Math.round(logicalW * dpr);
+                    canvas.height = Math.round(logicalH * dpr);
+                    canvas.style.width = logicalW + 'px';
+                    canvas.style.height = logicalH + 'px';
+                    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+                    const pathRoundRect = (x, y, w, h, r) => {
+                        ctx.beginPath();
+                        if (typeof ctx.roundRect === 'function') {
+                            ctx.roundRect(x, y, w, h, r);
+                            return;
+                        }
+                        const rr = Math.min(r, w / 2, h / 2);
+                        ctx.moveTo(x + rr, y);
+                        ctx.arcTo(x + w, y, x + w, y + h, rr);
+                        ctx.arcTo(x + w, y + h, x, y + h, rr);
+                        ctx.arcTo(x, y + h, x, y, rr);
+                        ctx.arcTo(x, y, x + w, y, rr);
+                        ctx.closePath();
+                    };
+
+                    const pad2 = (n) => (n < 10 ? '0' + n : '' + n);
+                    const now = new Date();
+                    const stamp = `${now.getFullYear()}${pad2(now.getMonth() + 1)}${pad2(now.getDate())}`;
+
+                    // 3. 燕麦纸底
+                    ctx.fillStyle = '#F5F3EF';
+                    ctx.fillRect(0, 0, logicalW, logicalH);
+
+                    // 4. 白色票面
+                    pathRoundRect(cardX, cardY, cardW, cardH, 16);
                     ctx.fillStyle = '#FFFFFF';
-                    ctx.strokeStyle = '#E8E5DC';
-                    ctx.lineWidth = 1;
-                    ctx.beginPath();
-                    ctx.roundRect(40, 40, 560, totalHeight - 80, 16);
                     ctx.fill();
+                    ctx.strokeStyle = '#E3DED4';
+                    ctx.lineWidth = 1;
                     ctx.stroke();
 
-                    // 顶部顶饰小条
+                    // 5. 顶饰短标与票号
                     ctx.fillStyle = '#2C3E50';
-                    ctx.fillRect(280, 56, 80, 3);
+                    ctx.fillRect(midX - 22, cardY + 14, 44, 2);
 
-                    // 标题
-                    ctx.fillStyle = '#1C1917';
-                    ctx.font = '600 24px "Noto Serif SC", serif';
+                    ctx.fillStyle = '#A39D93';
+                    ctx.font = '600 9px ' + SANS;
                     ctx.textAlign = 'center';
-                    ctx.fillText('eFootball 金币筹划签', 320, 110);
+                    ctx.letterSpacing = '1.4px';
+                    ctx.fillText(`TICKET NO. ${stamp}`, midX - 0.7, cardY + 34);
+                    ctx.letterSpacing = '0px';
 
-                    ctx.fillStyle = '#A8A29E';
-                    ctx.font = '12px -apple-system, sans-serif';
-                    ctx.fillText(`${payMode === 'euro' ? '欧元卡结算' : '日元直购'}  ·  ${formatTime(rateUpdatedAt)}`, 320, 138);
+                    // 6. 标题与副标
+                    ctx.fillStyle = '#1C1917';
+                    ctx.font = `600 21px ${CJK}`;
+                    ctx.fillText('eFootball 充值筹划签', midX, cardY + 64);
 
-                    // 分割细虚线
-                    ctx.strokeStyle = '#E2DFD6';
-                    ctx.setLineDash([4, 4]);
+                    ctx.fillStyle = '#78716C';
+                    ctx.font = `11px ${SANS}`;
+                    ctx.fillText(`${isEuro ? '欧元礼品卡渠道' : '日元特惠直购'} · ${formatTime(rateUpdatedAt)}`, midX, cardY + 84);
+
+                    // 7. 第一道分割虚线
+                    ctx.strokeStyle = '#E8E4DA';
+                    ctx.lineWidth = 1;
+                    ctx.setLineDash([3, 3]);
                     ctx.beginPath();
-                    ctx.moveTo(70, 165);
-                    ctx.lineTo(570, 165);
+                    ctx.moveTo(innerL, line1Y);
+                    ctx.lineTo(innerR, line1Y);
                     ctx.stroke();
                     ctx.setLineDash([]);
 
-                    // 明细列
+                    // 8. 勾选档位明细
+                    ctx.fillStyle = '#A39D93';
+                    ctx.font = `500 11px ${SANS}`;
                     ctx.textAlign = 'left';
-                    ctx.fillStyle = '#78716C';
-                    ctx.font = '12px -apple-system, sans-serif';
-                    ctx.fillText('档位项目', 70, 195);
+                    ctx.fillText('选购项目', innerL, tableHeadY);
                     ctx.textAlign = 'right';
-                    ctx.fillText('数量与折合', 570, 195);
+                    ctx.fillText('份数 / 票面', innerR, tableHeadY);
 
-                    let itemY = 230;
+                    let rowY = firstRowY;
                     items.forEach(item => {
                         ctx.textAlign = 'left';
                         ctx.fillStyle = '#292524';
-                        ctx.font = '500 15px -apple-system, sans-serif';
-                        const name = payMode === 'euro' ? `${item.coins.toLocaleString()} 金币` : item.name;
-                        ctx.fillText(name, 70, itemY);
+                        ctx.font = `500 13px ${SANS}`;
+                        const name = isEuro ? `${item.coins.toLocaleString()} 金币` : item.name;
+                        ctx.fillText(name, innerL, rowY);
 
                         ctx.textAlign = 'right';
                         ctx.fillStyle = '#1C1917';
-                        ctx.font = '600 15px "Newsreader", serif';
-                        const jpyPrice = (item.jpy ?? item.yen ?? 0) * item.qty;
-                        ctx.fillText(`×${item.qty}   JP¥${jpyPrice.toLocaleString()}`, 570, itemY);
-                        itemY += 44;
+                        ctx.font = `600 13px ${SERIF}`;
+                        const jpyVal = (item.jpy ?? item.yen ?? 0) * item.qty;
+                        ctx.fillText(`×${item.qty}   JP¥${jpyVal.toLocaleString()}`, innerR, rowY);
+                        rowY += rowH;
                     });
 
-                    // 结果票根区
-                    const receiptY = itemY + 20;
-                    ctx.fillStyle = '#F9F8F5';
+                    // 9. 票据齿孔：用纸色圆片「咬」开卡边，避免 destination-out 把背景也打成透明
+                    const notchR = 9;
+                    ctx.fillStyle = '#F5F3EF';
                     ctx.beginPath();
-                    ctx.roundRect(70, receiptY, 500, 170, 12);
+                    ctx.arc(cardX, notchY, notchR, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.beginPath();
+                    ctx.arc(cardX + cardW, notchY, notchR, 0, Math.PI * 2);
                     ctx.fill();
 
-                    const posterRmb = payMode === 'euro' ? euroTotalRmb : packTotalCny;
-                    const posterCoins = payMode === 'euro' ? euroTotal.coins : packTotal.coins;
+                    // 补回切口内侧的描边（右侧半圆走 90° → 270°，即卡内一侧）
+                    ctx.strokeStyle = '#E3DED4';
+                    ctx.beginPath();
+                    ctx.arc(cardX, notchY, notchR, -Math.PI / 2, Math.PI / 2, false);
+                    ctx.stroke();
+                    ctx.beginPath();
+                    ctx.arc(cardX + cardW, notchY, notchR, Math.PI / 2, Math.PI * 1.5, false);
+                    ctx.stroke();
+
+                    // 撕线
+                    ctx.strokeStyle = '#DDD8CD';
+                    ctx.setLineDash([4, 4]);
+                    ctx.beginPath();
+                    ctx.moveTo(cardX + notchR + 6, notchY);
+                    ctx.lineTo(cardX + cardW - notchR - 6, notchY);
+                    ctx.stroke();
+                    ctx.setLineDash([]);
+
+                    // 10. 结算金额：CN¥ 微缩上扬，主数字放大舒展
+                    const totalRmb = isEuro ? euroTotalRmb : packTotalCny;
+                    const totalCoins = isEuro ? euroTotal.coins : packTotal.coins;
 
                     ctx.textAlign = 'center';
-                    ctx.fillStyle = '#78716C';
-                    ctx.font = '12px -apple-system, sans-serif';
-                    ctx.fillText('预计折合支付', 320, receiptY + 36);
+                    ctx.fillStyle = '#8C827A';
+                    ctx.font = `11px ${SANS}`;
+                    ctx.fillText('预计折合实际支付', midX, amountLabelY);
+
+                    const rmbText = totalRmb.toFixed(2);
+                    ctx.font = `600 40px ${SERIF}`;
+                    const numW = ctx.measureText(rmbText).width;
+                    ctx.font = `500 14px ${SANS}`;
+                    const symW = ctx.measureText('CN¥').width + 7;
+                    const startX = midX - (numW + symW) / 2;
+
+                    ctx.textAlign = 'left';
+                    ctx.fillStyle = '#8C827A';
+                    ctx.font = `500 14px ${SANS}`;
+                    ctx.fillText('CN¥', startX, amountY - 5);
 
                     ctx.fillStyle = '#1C1917';
-                    ctx.font = '600 40px "Newsreader", serif';
-                    ctx.fillText(`CN¥ ${posterRmb.toFixed(2)}`, 320, receiptY + 84);
+                    ctx.font = `600 40px ${SERIF}`;
+                    ctx.fillText(rmbText, startX + symW, amountY);
 
+                    ctx.textAlign = 'center';
                     ctx.fillStyle = '#57534E';
-                    ctx.font = '14px -apple-system, sans-serif';
-                    ctx.fillText(`获得 ${posterCoins.toLocaleString()} 金币 · 每千币约 ¥${heroPerK.toFixed(2)}`, 320, receiptY + 120);
+                    ctx.font = `12px ${SANS}`;
+                    ctx.fillText(`获得 ${totalCoins.toLocaleString()} 金币 · 约 ¥${heroPerK.toFixed(2)} / 千币`, midX, coinsY);
 
-                    if (payMode === 'euro' && euroSettleMode === 'roundUp') {
-                        ctx.fillStyle = '#A8A29E';
-                        ctx.font = '11px -apple-system, sans-serif';
-                        ctx.fillText(`内含卡内结余 €${euroRemainderEur.toFixed(2)}（约 CN¥${euroRemainderRmb.toFixed(2)}）`, 320, receiptY + 144);
+                    // 11. 欧元结算专属：买卡面额与卡内留存
+                    if (isEuro) {
+                        ctx.fillStyle = '#FAF7F1';
+                        pathRoundRect(innerL, breakdownTop, cardW - 48, breakdownH, 10);
+                        ctx.fill();
+
+                        const row1 = breakdownTop + 22;
+                        ctx.font = `11px ${SANS}`;
+                        ctx.textAlign = 'left';
+                        ctx.fillStyle = '#8A8078';
+                        ctx.fillText('购卡方案', innerL + 14, row1);
+                        ctx.textAlign = 'right';
+                        ctx.fillStyle = '#292524';
+                        ctx.fillText(`€${euroSettleEur} 礼品卡 · 约 CN¥${((euroSettleEur / 10) * validCnyPer10Eur).toFixed(1)}`, innerR - 14, row1);
+
+                        if (showRemainder) {
+                            const row2 = breakdownTop + 42;
+                            ctx.textAlign = 'left';
+                            ctx.fillStyle = '#8A8078';
+                            ctx.fillText('卡内留存', innerL + 14, row2);
+                            ctx.textAlign = 'right';
+                            ctx.fillStyle = '#2D6A4F';
+                            ctx.fillText(`€${euroRemainderEur.toFixed(2)} · 约 CN¥${euroRemainderRmb.toFixed(1)}`, innerR - 14, row2);
+                        }
                     }
 
-                    // 尾部刊记（Colophon）
+                    // 12. 底部刊记
                     ctx.textAlign = 'center';
                     ctx.fillStyle = '#A8A29E';
-                    ctx.font = '11px -apple-system, sans-serif';
-                    ctx.fillText('记录人 · guiqulaixi  |  理性游玩，清醒自律', 320, totalHeight - 62);
+                    ctx.font = `10px ${SANS}`;
+                    ctx.letterSpacing = '0.6px';
+                    ctx.fillText('BY GUIQULAIXI · 理性游玩，清醒自律', midX - 0.3, cardY + cardH - 20);
+                    ctx.letterSpacing = '0px';
 
-                    const dataUrl = canvas.toDataURL('image/png');
+                    // 13. 导出下载
+                    const dataUrl = canvas.toDataURL('image/png', 1.0);
                     const link = document.createElement('a');
-                    link.download = `eFootball-筹划单-${Date.now()}.png`;
+                    link.download = `eFootball-筹划票据-${stamp}-${Date.now().toString().slice(-4)}.png`;
                     link.href = dataUrl;
+                    document.body.appendChild(link);
                     link.click();
-                    showToast('已生成典雅票据卡片');
+                    link.remove();
+                    showToast('已生成高画质票据');
                 };
 
                 return e(F, null,
