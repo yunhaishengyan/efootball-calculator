@@ -3,391 +3,644 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
-    <title>⚽ eFootball 金币比价神器</title>
+    <title>eFootball 金币比价 · 记账与筹划</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js" crossorigin></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js" crossorigin></script>
+    <!-- 引入优雅的衬线字体用于数字与标题刊印 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=Noto+Serif+SC:wght@400;600;700&display=swap" rel="stylesheet">
+
     <style>
         :root {
-            --bg-gradient: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-            --app-bg: rgba(255, 255, 255, 0.92);
-            --app-border: #cbd5e1;
-            --text-main: #0f172a;
-            --text-sub: #475569;
-            --text-muted: #64748b;
-            --card-bg: #ffffff;
-            --card-border: #e2e8f0;
-            --input-bg: #f8fafc;
-            --input-border: #cbd5e1;
-            --input-text: #0f172a;
-            --tab-bg: #e2e8f0;
-            --tab-color: #64748b;
-            --tab-active-bg: #4f46e5;
-            --tab-active-color: #ffffff;
-            --banner-bg: #eef2ff;
-            --banner-text: #3730a3;
-            --chip-bg: #c7d2fe;
-            --chip-text: #312e81;
-            --btn-primary-bg: #4f46e5;
-            --btn-primary-hover: #4338ca;
-            --result-bg: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-            --result-border: #334155;
-            --shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+            --font-serif: "Noto Serif SC", "Source Han Serif SC", "Songti SC", serif;
+            --font-num: "Newsreader", "Charter", "Georgia", serif;
+            --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", sans-serif;
+
+            /* 蜗牛读书 / 微信读书经典纸质感配色 */
+            --bg-page: #F6F5F1;
+            --bg-card: #FFFFFF;
+            --bg-subtle: #F0EEE8;
+            --bg-hover: #ECE9E1;
+            
+            --border-light: #E7E4DC;
+            --border-subtle: #EDEAE3;
+            --border-dashed: #DCD8CD;
+
+            --text-heading: #1C1917;
+            --text-main: #292524;
+            --text-secondary: #78716C;
+            --text-tertiary: #A8A29E;
+
+            --accent: #2C3E50;
+            --accent-soft: rgba(44, 62, 80, 0.08);
+            --accent-emerald: #2D6A4F;
+            --accent-warm: #8C6D37;
+
+            --receipt-bg: #FFFFFF;
+            --receipt-border: #DDD8CD;
+            --receipt-shadow: 0 12px 36px rgba(44, 39, 34, 0.06), 0 2px 6px rgba(44, 39, 34, 0.03);
+
+            --shadow-card: 0 4px 20px rgba(28, 25, 23, 0.03);
+            --transition-smooth: all 0.28s cubic-bezier(0.25, 1, 0.5, 1);
         }
 
         [data-theme="dark"] {
-            --bg-gradient: linear-gradient(135deg, #0b0f19 0%, #111827 100%);
-            --app-bg: rgba(17, 24, 39, 0.88);
-            --app-border: rgba(255, 255, 255, 0.1);
-            --text-main: #f3f4f6;
-            --text-sub: #9ca3af;
-            --text-muted: #6b7280;
-            --card-bg: rgba(31, 41, 55, 0.65);
-            --card-border: rgba(255, 255, 255, 0.08);
-            --input-bg: #1f2937;
-            --input-border: #374151;
-            --input-text: #f3f4f6;
-            --tab-bg: #1f2937;
-            --tab-color: #9ca3af;
-            --tab-active-bg: #6366f1;
-            --tab-active-color: #ffffff;
-            --banner-bg: rgba(99, 102, 241, 0.15);
-            --banner-text: #e0e7ff;
-            --chip-bg: rgba(99, 102, 241, 0.25);
-            --chip-text: #c7d2fe;
-            --btn-primary-bg: #6366f1;
-            --btn-primary-hover: #4f46e5;
-            --result-bg: linear-gradient(135deg, #111827 0%, #030712 100%);
-            --result-border: rgba(99, 102, 241, 0.35);
-            --shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            --bg-page: #17181A;
+            --bg-card: #202226;
+            --bg-subtle: #272A30;
+            --bg-hover: #2F333B;
+
+            --border-light: #2E323A;
+            --border-subtle: #262930;
+            --border-dashed: #3A3F4A;
+
+            --text-heading: #F5F5F3;
+            --text-main: #E5E3DF;
+            --text-secondary: #9E9B95;
+            --text-tertiary: #6E6C66;
+
+            --accent: #9BB0C1;
+            --accent-soft: rgba(155, 176, 193, 0.12);
+            --accent-emerald: #52B788;
+            --accent-warm: #D4AF37;
+
+            --receipt-bg: #1F2126;
+            --receipt-border: #323640;
+            --receipt-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+
+            --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.2);
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
+        #root { min-width: 0; width: 100%; display: flex; justify-content: center; }
+
         body {
-            background: var(--bg-gradient);
+            background-color: var(--bg-page);
+            color: var(--text-main);
             min-height: 100vh;
             display: flex;
             justify-content: center;
-            align-items: center;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            padding: 16px;
-            touch-action: manipulation;
+            align-items: flex-start;
+            font-family: var(--font-sans);
+            padding: 32px 16px;
+            letter-spacing: 0.01em;
+            -webkit-font-smoothing: antialiased;
             transition: background 0.3s ease;
         }
 
-        .app-container {
-            max-width: 500px;
+        .editorial-wrapper {
+            max-width: 480px;
             width: 100%;
-            background: var(--app-bg);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid var(--app-border);
-            border-radius: 24px;
-            padding: 20px;
-            box-shadow: var(--shadow);
-            transition: all 0.3s ease;
+            margin: 0 auto;
         }
 
-        @media (min-width: 868px) {
-            body { padding: 40px 20px; }
-            .app-container {
-                max-width: 1080px;
-                padding: 32px;
-            }
-            .desktop-layout {
+        @media (min-width: 900px) {
+            body { padding: 50px 24px; }
+            .editorial-wrapper { max-width: 1040px; }
+            .book-layout {
                 display: grid;
-                grid-template-columns: 1fr 400px;
-                gap: 28px;
+                grid-template-columns: 1fr 380px;
+                gap: 36px;
                 align-items: start;
             }
-            .desktop-right-panel {
+            .book-right-panel {
                 position: sticky;
-                top: 32px;
+                top: 40px;
                 display: flex;
                 flex-direction: column;
-                gap: 16px;
+                gap: 20px;
             }
         }
 
-        header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
-        header .title-area h1 { font-size: 24px; color: var(--text-main); margin-bottom: 4px; font-weight: 700; }
-        header .subtitle { color: var(--text-sub); font-size: 13px; }
-        
-        .theme-toggle-btn {
-            background: var(--card-bg);
-            border: 1px solid var(--card-border);
-            color: var(--text-main);
-            width: 42px;
-            height: 42px;
-            border-radius: 50%;
+        /* 顶部品牌与题头 */
+        header.book-header {
             display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            font-size: 18px;
-            transition: all 0.2s ease;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-            flex-shrink: 0;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border-light);
         }
-        .theme-toggle-btn:hover { transform: scale(1.08); }
-        .theme-toggle-btn:active { transform: scale(0.95); }
+        .book-title-group h1 {
+            font-family: var(--font-serif);
+            font-size: 22px;
+            font-weight: 600;
+            color: var(--text-heading);
+            letter-spacing: 0.04em;
+        }
+        .book-title-group .sub {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
 
-        .tab-bar {
-            display: flex;
-            background: var(--tab-bg);
-            border-radius: 30px;
-            padding: 4px;
-            margin-bottom: 16px;
-            gap: 4px;
+        .theme-btn {
+            background: transparent;
+            border: 1px solid var(--border-light);
+            color: var(--text-secondary);
+            border-radius: 20px;
+            padding: 5px 12px;
+            font-size: 12px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            transition: var(--transition-smooth);
         }
-        .tab-btn {
+        .theme-btn:hover {
+            color: var(--text-heading);
+            background: var(--bg-subtle);
+        }
+
+        /* 书卷式选项卡切换 */
+        .segmented-nav {
+            display: flex;
+            background: var(--bg-subtle);
+            border-radius: 12px;
+            padding: 3px;
+            margin-bottom: 20px;
+        }
+        .segmented-btn {
             flex: 1;
             border: none;
             background: transparent;
-            padding: 10px 0;
-            border-radius: 30px;
-            font-size: 15px;
-            font-weight: 600;
-            color: var(--tab-color);
+            padding: 8px 0;
+            border-radius: 9px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-secondary);
             cursor: pointer;
-            transition: all 0.25s;
-            min-height: 44px;
+            transition: var(--transition-smooth);
         }
-        .tab-btn.active {
-            background: var(--tab-active-bg);
-            color: var(--tab-active-color);
-            box-shadow: 0 3px 10px rgba(79, 70, 229, 0.3);
+        .segmented-btn.active {
+            background: var(--bg-card);
+            color: var(--text-heading);
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
         }
 
-        .rate-banner {
-            background: var(--banner-bg);
+        /* 汇率与资讯小签（微小注脚感） */
+        .rate-bar {
+            background: var(--bg-card);
+            border: 1px solid var(--border-light);
             border-radius: 14px;
-            padding: 12px 16px;
+            padding: 12px 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            font-size: 13px;
+        }
+        .rate-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .rate-meta .title { font-size: 11px; color: var(--text-tertiary); letter-spacing: 0.05em; text-transform: uppercase; }
+        .rate-meta .num { font-family: var(--font-num); font-size: 15px; font-weight: 600; color: var(--text-heading); }
+        .rate-refresh-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 12px;
+            cursor: pointer;
+            text-decoration: underline;
+            text-underline-offset: 3px;
+            padding: 4px;
+        }
+        .rate-refresh-btn:hover { color: var(--text-heading); }
+
+        /* 极简行情决策比对条 */
+        .comparison-slate {
+            background: var(--bg-card);
+            border: 1px solid var(--border-light);
+            border-radius: 16px;
+            padding: 18px;
+            margin-bottom: 22px;
+        }
+        .comp-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            position: relative;
+        }
+        .comp-grid::after {
+            content: "";
+            position: absolute;
+            left: 50%;
+            top: 4px;
+            bottom: 4px;
+            width: 1px;
+            background: var(--border-subtle);
+        }
+        .comp-item { padding: 0 4px; }
+        .comp-title {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+        .comp-tag {
+            font-size: 10px;
+            color: var(--accent-emerald);
+            background: rgba(45, 106, 79, 0.08);
+            border-radius: 4px;
+            padding: 1px 5px;
+            font-weight: 600;
+        }
+        .comp-num {
+            font-family: var(--font-num);
+            font-size: 22px;
+            font-weight: 600;
+            color: var(--text-heading);
+            line-height: 1.2;
+        }
+        .comp-num span { font-size: 12px; font-family: var(--font-sans); color: var(--text-tertiary); font-weight: normal; margin-left: 2px; }
+        .comp-desc { font-size: 11px; color: var(--text-tertiary); margin-top: 4px; }
+        .comp-summary {
+            margin-top: 14px;
+            padding-top: 12px;
+            border-top: 1px dashed var(--border-dashed);
+            font-size: 12px;
+            color: var(--text-secondary);
+            text-align: center;
+        }
+        .comp-summary em {
+            font-style: normal;
+            font-family: var(--font-num);
+            font-weight: 600;
+            color: var(--text-heading);
+            font-size: 14px;
+        }
+
+        /* 章节卡片（Section Cards） */
+        .chapter-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border-light);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow-card);
+        }
+        .chapter-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 16px;
-            flex-wrap: wrap;
-            gap: 8px;
+            margin-bottom: 14px;
         }
-        .rate-banner .label { color: var(--banner-text); font-size: 13px; font-weight: 500; }
-        .rate-banner .value { font-weight: 700; color: var(--text-main); font-size: 14px; }
-        .rate-banner .rate-status-chip {
-            font-size: 11px;
-            color: var(--chip-text);
-            background: var(--chip-bg);
-            border-radius: 10px;
-            padding: 3px 9px;
+        .chapter-title {
+            font-family: var(--font-serif);
+            font-size: 15px;
             font-weight: 600;
+            color: var(--text-heading);
+            letter-spacing: 0.02em;
         }
-        .rate-banner .refresh-btn {
-            background: var(--btn-primary-bg);
-            color: white;
-            border: none;
-            padding: 6px 16px;
-            border-radius: 20px;
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-            min-height: 36px;
-            transition: all 0.2s;
-        }
-        .refresh-btn:hover { background: var(--btn-primary-hover); transform: translateY(-1px); }
+        .chapter-note { font-size: 12px; color: var(--text-tertiary); }
 
-        .card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 18px; padding: 18px; margin-bottom: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.02); }
-        .card .label { font-size: 14px; color: var(--text-sub); margin-bottom: 12px; display: block; font-weight: 600; }
-
-        .input-group {
+        /* 优雅的输入框 */
+        .editorial-input-group {
             display: flex;
             align-items: center;
-            border: 2px solid var(--input-border);
-            border-radius: 12px;
+            background: var(--bg-subtle);
+            border: 1px solid var(--border-light);
+            border-radius: 10px;
             overflow: hidden;
-            background: var(--input-bg);
+            transition: var(--transition-smooth);
         }
-        .input-group input {
+        .editorial-input-group:focus-within {
+            border-color: var(--text-secondary);
+            background: var(--bg-card);
+        }
+        .editorial-input-group input {
             flex: 1;
             border: none;
-            padding: 12px 16px;
-            font-size: 18px;
-            font-weight: 600;
             outline: none;
             background: transparent;
-            color: var(--input-text);
-            min-height: 46px;
+            font-family: var(--font-num);
+            font-size: 18px;
+            padding: 10px 14px;
+            color: var(--text-heading);
         }
-        .input-group .unit-label {
-            padding: 0 16px;
-            color: var(--text-muted);
-            font-weight: 600;
-            font-size: 14px;
-            background: var(--tab-bg);
-            height: 100%;
-            display: flex;
-            align-items: center;
+        .editorial-input-group .unit {
+            padding: 0 14px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            font-weight: 500;
         }
 
-        .pack-list { display: flex; flex-direction: column; gap: 12px; }
-        .pack-item {
-            background: var(--input-bg);
-            border: 2px solid var(--card-border);
-            border-radius: 14px;
+        /* 档位列表（微信读书书单式排版） */
+        .pack-grid { display: flex; flex-direction: column; gap: 8px; }
+        .pack-row-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-light);
+            border-radius: 12px;
             padding: 14px 16px;
             cursor: pointer;
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-            -webkit-tap-highlight-color: transparent;
+            transition: var(--transition-smooth);
+            position: relative;
         }
-        .pack-item:hover { border-color: #818cf8; transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.06); }
-        .pack-row { display: flex; align-items: center; gap: 14px; }
-        .pack-item.selected {
-            border-color: #6366f1;
-            background: var(--banner-bg);
-            box-shadow: 0 4px 14px rgba(99,102,241,0.18);
+        .pack-row-card:hover {
+            border-color: var(--text-secondary);
+            background: var(--bg-subtle);
         }
-        .pack-item .check {
-            width: 24px;
-            height: 24px;
-            flex: 0 0 auto;
-            border-radius: 7px;
-            border: 2px solid var(--input-border);
-            background: var(--input-bg);
+        .pack-row-card.selected {
+            border-color: var(--text-heading);
+            background: var(--bg-subtle);
+        }
+        [data-theme="dark"] .pack-row-card.selected {
+            background: #272A32;
+        }
+        .pack-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .pack-primary {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .pack-marker {
+            width: 18px;
+            height: 18px;
+            border-radius: 5px;
+            border: 1px solid var(--border-dashed);
+            background: var(--bg-card);
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
+            font-size: 11px;
+            color: transparent;
+            transition: var(--transition-smooth);
+        }
+        .pack-row-card.selected .pack-marker {
+            background: var(--text-heading);
+            border-color: var(--text-heading);
+            color: var(--bg-card);
+        }
+        .pack-info .name {
             font-size: 14px;
-            font-weight: 700;
-        }
-        .pack-item.selected .check { background: #6366f1; border-color: #6366f1; }
-        .pack-item .pack-main { flex: 1; min-width: 0; }
-        .pack-item .pack-name { font-size: 16px; font-weight: 700; color: var(--text-main); }
-        .pack-item .pack-meta { font-size: 12px; color: var(--text-sub); margin-top: 3px; }
-        .pack-item .pack-price { flex: 0 0 auto; text-align: right; }
-        .pack-item .pack-price .jpy { font-size: 17px; font-weight: 700; color: #ef4444; }
-        .pack-item .pack-price .eur { font-size: 13px; color: #4f46e5; margin-top: 1px; font-weight: 600; }
-        .pack-item .pack-price .per { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
-        
-        .pack-badge {
-            display: inline-block;
-            background: #f59e0b;
-            color: #ffffff;
-            font-size: 10px;
-            font-weight: 700;
-            border-radius: 4px;
-            padding: 1px 5px;
-            margin-right: 6px;
-            vertical-align: middle;
-        }
-        .pack-badge.best-badge { background: #10b981; color: white; margin-left: 6px; margin-right: 0; }
-
-        .qty-row {
+            font-weight: 600;
+            color: var(--text-heading);
             display: flex;
             align-items: center;
-            gap: 10px;
-            margin-top: 12px;
-            padding-top: 12px;
-            border-top: 1px dashed var(--card-border);
+            gap: 6px;
         }
-        .qty-row .qty-label { font-size: 13px; color: var(--text-sub); font-weight: 500; }
-        .qty-row button {
-            width: 36px;
-            height: 36px;
-            border-radius: 8px;
-            border: 1px solid var(--input-border);
-            background: var(--card-bg);
-            color: var(--text-main);
+        .pack-info .badge-subtle {
+            font-size: 10px;
+            padding: 1px 5px;
+            border-radius: 3px;
+            font-weight: 500;
+            background: var(--bg-hover);
+            color: var(--text-secondary);
+        }
+        .pack-info .badge-best {
+            background: rgba(45, 106, 79, 0.08);
+            color: var(--accent-emerald);
+        }
+        .pack-info .meta {
+            font-size: 12px;
+            color: var(--text-tertiary);
+            margin-top: 2px;
+        }
+        .pack-valuation {
+            text-align: right;
+        }
+        .pack-valuation .primary-price {
+            font-family: var(--font-num);
             font-size: 16px;
             font-weight: 600;
-            cursor: pointer;
-            flex: 0 0 auto;
-            transition: background 0.2s;
+            color: var(--text-heading);
         }
-        .qty-row button:hover:not(:disabled) { background: var(--tab-bg); }
-        .qty-row button:disabled { opacity: 0.4; cursor: not-allowed; }
-        .qty-row .qty-val { font-size: 15px; font-weight: 700; color: var(--text-main); min-width: 28px; text-align: center; }
-        .qty-row .qty-sub { margin-left: auto; font-size: 13px; color: #4f46e5; font-weight: 600; }
+        .pack-valuation .sub-price {
+            font-size: 11px;
+            color: var(--text-tertiary);
+            margin-top: 1px;
+        }
 
-        .result-box {
-            background: var(--result-bg);
-            border: 1px solid var(--result-border);
-            border-radius: 20px;
-            padding: 24px;
-            color: white;
-            text-align: center;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
-        }
-        .result-box .label { color: #94a3b8; font-size: 14px; display: block; margin-bottom: 8px; font-weight: 500; }
-        .result-single {
-            font-size: 40px;
-            font-weight: 800;
-            color: #fbbf24;
-            padding: 6px 0;
-            letter-spacing: -0.5px;
-        }
-        .result-single .currency { font-size: 24px; font-weight: 600; margin-right: 4px; }
-
-        .detail-row {
+        /* 计数控制器 */
+        .stepper-belt {
             display: flex;
-            justify-content: center;
-            gap: 10px;
-            font-size: 13px;
-            color: #94a3b8;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 12px;
             margin-top: 10px;
-            flex-wrap: wrap;
-            line-height: 1.5;
+            padding-top: 10px;
+            border-top: 1px dashed var(--border-dashed);
         }
-        .detail-row .highlight { color: #f8fafc; font-weight: 600; }
-
-        .action-row { display: flex; gap: 12px; }
-        .action-btn {
-            flex: 1;
-            background: var(--card-bg);
-            border: 1px solid var(--card-border);
-            color: var(--text-main);
-            padding: 12px;
-            border-radius: 14px;
-            font-size: 14px;
-            font-weight: 600;
+        .stepper-btn {
+            width: 26px;
+            height: 26px;
+            border-radius: 6px;
+            border: 1px solid var(--border-light);
+            background: var(--bg-card);
+            color: var(--text-heading);
             cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            transition: var(--transition-smooth);
+        }
+        .stepper-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+        .stepper-btn:hover:not(:disabled) { background: var(--bg-hover); }
+        .stepper-val {
+            font-family: var(--font-num);
+            font-size: 15px;
+            font-weight: 600;
+            min-width: 20px;
+            text-align: center;
+        }
+
+        /* ── 核心结果区：精致的【书卷收据票据】 ── */
+        .receipt-card {
+            background: var(--receipt-bg);
+            border: 1px solid var(--receipt-border);
+            border-radius: 18px;
+            padding: 26px 22px;
+            box-shadow: var(--receipt-shadow);
+            position: relative;
+            overflow: hidden;
+        }
+        .receipt-card::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent), var(--accent-warm), var(--accent));
+        }
+        .receipt-stamp {
+            text-align: center;
+            font-family: var(--font-serif);
+            font-size: 12px;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--text-tertiary);
+            margin-bottom: 8px;
+        }
+        .receipt-main-cost {
+            text-align: center;
+            padding: 6px 0 12px;
+        }
+        .receipt-main-cost .curr {
+            font-family: var(--font-sans);
+            font-size: 18px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-right: 4px;
+        }
+        .receipt-main-cost .figure {
+            font-family: var(--font-num);
+            font-size: 44px;
+            font-weight: 600;
+            color: var(--text-heading);
+            letter-spacing: -0.02em;
+            line-height: 1;
+        }
+        .receipt-coins-yield {
+            text-align: center;
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+        }
+        .receipt-coins-yield b {
+            font-family: var(--font-num);
+            font-size: 15px;
+            color: var(--text-heading);
+        }
+
+        .receipt-breakdown {
+            border-top: 1px dashed var(--receipt-border);
+            padding-top: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            font-size: 12px;
+        }
+        .receipt-line {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            color: var(--text-secondary);
+        }
+        .receipt-line .val {
+            font-family: var(--font-num);
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-heading);
+        }
+        .receipt-line .val small {
+            font-family: var(--font-sans);
+            font-size: 11px;
+            color: var(--text-tertiary);
+            margin-left: 4px;
+        }
+
+        .editorial-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 14px;
+        }
+        .action-subtle-btn {
+            background: var(--bg-card);
+            border: 1px solid var(--border-light);
+            border-radius: 10px;
+            padding: 10px 0;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-main);
+            cursor: pointer;
+            transition: var(--transition-smooth);
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 6px;
-            transition: all 0.2s ease;
-            min-height: 48px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
         }
-        .action-btn:hover { background: var(--banner-bg); border-color: #6366f1; color: #4f46e5; transform: translateY(-1px); }
-        .action-btn:active { transform: scale(0.97); }
+        .action-subtle-btn:hover {
+            border-color: var(--text-secondary);
+            background: var(--bg-subtle);
+        }
 
-        .toast {
+        /* 移动端优雅吸底 */
+        .bottom-float-bar {
+            display: none;
+        }
+        @media (max-width: 899px) {
+            body { padding-bottom: 90px; }
+            .bottom-float-bar {
+                position: fixed;
+                bottom: 0; left: 0; right: 0;
+                background: var(--receipt-bg);
+                border-top: 1px solid var(--border-light);
+                padding: 10px 20px calc(10px + env(safe-area-inset-bottom, 0px));
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.05);
+                z-index: 100;
+                transition: transform 0.3s ease;
+            }
+            .bottom-float-bar.hidden {
+                transform: translateY(105%);
+            }
+            .bf-label { font-size: 11px; color: var(--text-tertiary); }
+            .bf-val {
+                font-family: var(--font-num);
+                font-size: 22px;
+                font-weight: 600;
+                color: var(--text-heading);
+            }
+            .bf-btns { display: flex; gap: 8px; }
+            .bf-btn {
+                background: var(--bg-subtle);
+                border: 1px solid var(--border-light);
+                border-radius: 8px;
+                padding: 8px 12px;
+                font-size: 12px;
+                color: var(--text-main);
+                cursor: pointer;
+            }
+        }
+
+        /* 吐司提醒 */
+        .toast-pill {
             position: fixed;
             bottom: 30px;
             left: 50%;
             transform: translateX(-50%) translateY(20px);
-            background: rgba(15, 23, 42, 0.92);
-            color: white;
-            padding: 12px 24px;
+            background: var(--text-heading);
+            color: var(--bg-page);
+            padding: 9px 20px;
             border-radius: 30px;
-            font-size: 14px;
-            font-weight: 500;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            font-size: 13px;
+            letter-spacing: 0.03em;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
             opacity: 0;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             pointer-events: none;
-            z-index: 1000;
+            transition: var(--transition-smooth);
+            z-index: 999;
         }
-        .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+        .toast-pill.visible {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
 
-        .footnote {
+        .book-colophon {
             text-align: center;
-            color: var(--text-muted);
-            font-size: 12px;
-            margin-top: 20px;
-            padding-top: 14px;
-            border-top: 1px solid var(--card-border);
-            line-height: 1.6;
+            font-size: 11px;
+            color: var(--text-tertiary);
+            margin-top: 36px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border-subtle);
+            letter-spacing: 0.05em;
+            line-height: 1.8;
         }
-        .footnote .byline { color: #4f46e5; font-weight: 600; font-size: 12px; }
 
         #posterCanvas { display: none; }
     </style>
@@ -404,13 +657,12 @@
             const F = React.Fragment;
 
             const SALE_PACKS = [
-                { id: 'c650',  name: 'Coin 650',  jpy: 500,  paid: 405,  free: 245,  maxQty: 4 },
-                { id: 'c840',  name: 'Coin 840',  jpy: 650,  paid: 530,  free: 310,  maxQty: 1 },
-                { id: 'c2700', name: 'Coin 2700', jpy: 1900, paid: 1540, free: 1160, maxQty: 1 },
-                { id: 'c7300', name: 'Coin 7300', jpy: 4800, paid: 3900, free: 3400, maxQty: 1 }
+                { id: 'c650',  name: '650 币特惠',  jpy: 500,  paid: 405,  free: 245,  maxQty: 4 },
+                { id: 'c840',  name: '840 币特惠',  jpy: 650,  paid: 530,  free: 310,  maxQty: 1 },
+                { id: 'c2700', name: '2,700 币特惠', jpy: 1900, paid: 1540, free: 1160, maxQty: 1 },
+                { id: 'c7300', name: '7,300 币特惠', jpy: 4800, paid: 3900, free: 3400, maxQty: 1 }
             ];
 
-            // 更新后的 Steam 商店 9 个档位数据
             const EURO_PACKS = [
                 { id: 'e100',   coins: 100,   yen: 120 },
                 { id: 'e300',   coins: 300,   yen: 360 },
@@ -426,15 +678,9 @@
             const PACK_DATA_VERIFIED_AT = '2026-10-22';
             const FALLBACK_JPY_EUR = 0.0054;
             const FALLBACK_JPY_CNY = 0.0414;
-            const RATE_CACHE_KEY = 'efootball_rate_cache_v3';
+            const RATE_CACHE_KEY = 'efootball_rate_cache_editorial';
 
-            const API_SOURCES = {
-                cloudflare: {
-                    name: 'Cloudflare Pages',
-                    url: 'https://latest.currency-api.pages.dev/v1/currencies/jpy.json',
-                    parse: (data) => ({ eur: data?.jpy?.eur, cny: data?.jpy?.cny })
-                }
-            };
+            const API_SOURCE = 'https://latest.currency-api.pages.dev/v1/currencies/jpy.json';
 
             const readRateCache = () => {
                 try {
@@ -453,7 +699,7 @@
                 const d = new Date(iso);
                 if (isNaN(d.getTime())) return '—';
                 const pad = (n) => (n < 10 ? '0' + n : '' + n);
-                return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+                return `${d.getMonth() + 1}月${d.getDate()}日 ${pad(d.getHours())}:${pad(d.getMinutes())}`;
             };
 
             function App() {
@@ -467,6 +713,9 @@
                 const [theme, setTheme] = React.useState('light');
                 const [toastMsg, setToastMsg] = React.useState('');
 
+                const resultRef = React.useRef(null);
+                const [barHidden, setBarHidden] = React.useState(false);
+
                 const [payMode, setPayMode] = React.useState('euro');
                 const [cnyPer10Eur, setCnyPer10Eur] = React.useState('60');
                 const [euroSettleMode, setEuroSettleMode] = React.useState('roundUp');
@@ -477,21 +726,32 @@
                     document.documentElement.setAttribute('data-theme', theme);
                 }, [theme]);
 
+                React.useEffect(() => {
+                    const el = resultRef.current;
+                    if (!el || typeof IntersectionObserver === 'undefined') return;
+                    const io = new IntersectionObserver((entries) => {
+                        entries.forEach((entry) => {
+                            setBarHidden(entry.isIntersecting && entry.intersectionRatio >= 0.45);
+                        });
+                    }, { threshold: [0, 0.45, 1] });
+                    io.observe(el);
+                    return () => io.disconnect();
+                }, []);
+
                 const showToast = (msg) => {
                     setToastMsg(msg);
-                    setTimeout(() => setToastMsg(''), 2500);
+                    setTimeout(() => setToastMsg(''), 2400);
                 };
 
                 const fetchRate = async () => {
                     setLoading(true);
                     let eurRate = null, cnyRate = null;
                     try {
-                        const res = await fetch(API_SOURCES.cloudflare.url);
+                        const res = await fetch(API_SOURCE);
                         if (res.ok) {
                             const data = await res.json();
-                            const parsed = API_SOURCES.cloudflare.parse(data);
-                            if (isValidRate(parsed.eur)) eurRate = parsed.eur;
-                            if (isValidRate(parsed.cny)) cnyRate = parsed.cny;
+                            if (isValidRate(data?.jpy?.eur)) eurRate = data.jpy.eur;
+                            if (isValidRate(data?.jpy?.cny)) cnyRate = data.jpy.cny;
                         }
                     } catch {}
 
@@ -533,6 +793,7 @@
                 const euroUsedEur = euroSettleMode === 'roundUp' ? euroSettleEur : euroRawTotalEur;
                 const euroTotalRmb = (euroUsedEur / 10) * validCnyPer10Eur;
                 const euroPerK = euroTotal.coins > 0 ? (euroTotalRmb / euroTotal.coins) * 1000 : 0;
+                const euroAltRmb = ((euroSettleMode === 'roundUp' ? euroRawTotalEur : euroSettleEur) / 10) * validCnyPer10Eur;
 
                 const packList = SALE_PACKS.map(p => {
                     const coins = p.paid + p.free;
@@ -550,305 +811,396 @@
                 const heroPerK = payMode === 'euro' ? euroPerK : packPerK;
                 const noSelection = (payMode === 'yen' && selectedYen.length === 0) || (payMode === 'euro' && selectedEuro.length === 0);
 
-                const handleCopyText = () => {
-                    if (noSelection) return showToast('请先选择档位');
-                    let text = `⚽ eFootball 金币比价清单\n──────────────────\n`;
-                    text += `💳 方式：${payMode === 'euro' ? '欧元卡 (淘宝)' : '日元直购'}\n`;
-                    if (payMode === 'euro') {
-                        text += `🪙 总金币：${euroTotal.coins.toLocaleString()} 币\n`;
-                        if (euroSettleMode === 'roundUp') {
-                            text += `💶 消耗：JP¥${euroTotal.yen.toLocaleString()} → 理论 €${euroRawTotalEur.toFixed(2)} → 整10欧卡结算 €${euroSettleEur}\n`;
-                            text += `💰 实付：≈ CN¥${euroTotalRmb.toFixed(2)} (CN¥${euroPerK.toFixed(2)}/千币)\n`;
-                            text += `🎁 卡内结余：€${euroRemainderEur.toFixed(2)} (折合 ≈ CN¥${euroRemainderRmb.toFixed(2)})\n`;
-                        } else {
-                            text += `💶 消耗：JP¥${euroTotal.yen.toLocaleString()} → 理论净消耗 €${euroRawTotalEur.toFixed(2)}\n`;
-                            text += `💰 按纯消耗折算：≈ CN¥${euroTotalRmb.toFixed(2)} (CN¥${euroPerK.toFixed(2)}/千币)\n`;
-                            text += `ℹ️ 充值 €${euroSettleEur} 后还将结余 €${euroRemainderEur.toFixed(2)}\n`;
-                        }
-                    } else {
-                        text += `🪙 总金币：${packTotal.coins.toLocaleString()} 币\n`;
-                        text += `💴 需付：JP¥${packTotal.jpy.toLocaleString()} ≈ CN¥${packTotalCny.toFixed(2)} (CN¥${packPerK.toFixed(2)}/千币)\n`;
-                    }
-                    text += `──────────────────\n⏱️ ${formatTime(rateUpdatedAt)}`;
+                const euroUnitCost = (p) => {
+                    if (!(p.coins > 0) || !(validCnyPer10Eur > 0)) return Infinity;
+                    const rawEur = p.yen * eurRateForCalc;
+                    const chargeEur = euroSettleMode === 'roundUp' ? Math.ceil((rawEur - 1e-9) / 10) * 10 : rawEur;
+                    return (chargeEur / 10) * validCnyPer10Eur / p.coins * 1000;
+                };
+                const bestYen = packList.reduce((best, p) => (!best || p.cnyPerK < best.cnyPerK ? p : best), null);
+                const bestEuro = euroPackList.reduce((best, p) => {
+                    const cost = euroUnitCost(p);
+                    return (!best || cost < best.cost) ? { pack: p, cost } : best;
+                }, null);
+                const yenCostOk = !!(bestYen && isFinite(bestYen.cnyPerK) && bestYen.cnyPerK > 0);
+                const euroCostOk = !!(bestEuro && isFinite(bestEuro.cost) && bestEuro.cost > 0);
+                const yenCheaper = (euroCostOk && yenCostOk) ? bestYen.cnyPerK <= bestEuro.cost : true;
+                const compareDelta = (euroCostOk && yenCostOk) ? Math.abs(bestEuro.cost - bestYen.cnyPerK) : 0;
+                const compareDeltaPct = (euroCostOk && yenCostOk && bestYen.cnyPerK > 0) ? Math.abs(bestEuro.cost / bestYen.cnyPerK - 1) * 100 : 0;
 
-                    navigator.clipboard.writeText(text).then(() => showToast('📋 已复制比价结果！'));
+                const copyText = (text) => {
+                    const done = () => showToast('已收录至剪贴板');
+                    if (navigator.clipboard && navigator.clipboard.writeText) {
+                        navigator.clipboard.writeText(text).then(done).catch(() => showToast('复制未成功'));
+                    } else {
+                        showToast('请手动复制');
+                    }
                 };
 
+                const handleCopyText = () => {
+                    if (noSelection) return showToast('请先选择充值档位');
+                    const coins = payMode === 'euro' ? euroTotal.coins : packTotal.coins;
+                    const paid = (euroSettleEur / 10) * validCnyPer10Eur;
+                    let text = `【eFootball 筹划记录】\n`;
+                    text += `获币量：${coins.toLocaleString()} 金币\n`;
+                    if (payMode === 'euro') {
+                        text += `实付预估：CN¥${paid.toFixed(2)} (按 €${euroSettleEur} 购卡)\n`;
+                        text += euroSettleMode === 'roundUp'
+                            ? `结余留存：€${euroRemainderEur.toFixed(2)} (约合 CN¥${euroRemainderRmb.toFixed(2)})\n`
+                            : `纯净消耗：CN¥${euroTotalRmb.toFixed(2)}\n`;
+                    } else {
+                        text += `实付预估：JP¥${packTotal.jpy.toLocaleString()} (约合 CN¥${packTotalCny.toFixed(2)})\n`;
+                    }
+                    text += `单币均价：约 ¥${heroPerK.toFixed(2)} / 千币\n`;
+                    text += `折算时点：${formatTime(rateUpdatedAt)}`;
+                    copyText(text);
+                };
+
+                // 生成微信读书风格的典雅卡片海报
                 const handleGeneratePoster = () => {
-                    if (noSelection) return showToast('请先选择至少一个档位');
+                    if (noSelection) return showToast('请先勾选档位以供生成');
                     const canvas = document.getElementById('posterCanvas');
                     const ctx = canvas.getContext('2d');
                     
                     const items = payMode === 'euro' ? selectedEuro : selectedYen;
-                    const cardHeight = Math.max(220, 140 + items.length * 60);
-                    const extraHeight = (payMode === 'euro' && euroSettleMode === 'roundUp') ? 240 : 220;
-                    const totalHeight = 300 + cardHeight + extraHeight;
+                    const baseHeight = 560;
+                    const itemsHeight = items.length * 44;
+                    const totalHeight = baseHeight + itemsHeight;
 
-                    canvas.width = 800;
+                    canvas.width = 640;
                     canvas.height = totalHeight;
 
-                    const bgGrad = ctx.createLinearGradient(0, 0, 800, totalHeight);
-                    bgGrad.addColorStop(0, '#0b0f19');
-                    bgGrad.addColorStop(1, '#1e293b');
-                    ctx.fillStyle = bgGrad;
-                    ctx.fillRect(0, 0, 800, totalHeight);
+                    // 绘制米纸质感背景
+                    ctx.fillStyle = '#F7F6F2';
+                    ctx.fillRect(0, 0, 640, totalHeight);
 
-                    ctx.fillStyle = '#ffffff';
-                    ctx.font = 'bold 36px sans-serif';
-                    ctx.textAlign = 'center';
-                    ctx.fillText('⚽ eFootball 金币比价清单', 400, 75);
-
-                    ctx.fillStyle = '#94a3b8';
-                    ctx.font = '16px sans-serif';
-                    ctx.fillText(`支付方式: ${payMode === 'euro' ? '欧元卡商店' : '日元官方直购'}   |   汇率更新: ${formatTime(rateUpdatedAt)}`, 400, 115);
-
-                    ctx.fillStyle = 'rgba(30, 41, 59, 0.7)';
-                    ctx.strokeStyle = 'rgba(99, 102, 241, 0.3)';
-                    ctx.lineWidth = 2;
+                    // 内衬优雅纸卡
+                    ctx.fillStyle = '#FFFFFF';
+                    ctx.strokeStyle = '#E8E5DC';
+                    ctx.lineWidth = 1;
                     ctx.beginPath();
-                    ctx.roundRect(60, 150, 680, cardHeight, 16);
+                    ctx.roundRect(40, 40, 560, totalHeight - 80, 16);
                     ctx.fill();
                     ctx.stroke();
 
-                    ctx.fillStyle = '#cbd5e1';
-                    ctx.font = 'bold 18px sans-serif';
+                    // 顶部顶饰小条
+                    ctx.fillStyle = '#2C3E50';
+                    ctx.fillRect(280, 56, 80, 3);
+
+                    // 标题
+                    ctx.fillStyle = '#1C1917';
+                    ctx.font = '600 24px "Noto Serif SC", serif';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('eFootball 金币筹划签', 320, 110);
+
+                    ctx.fillStyle = '#A8A29E';
+                    ctx.font = '12px -apple-system, sans-serif';
+                    ctx.fillText(`${payMode === 'euro' ? '欧元卡结算' : '日元直购'}  ·  ${formatTime(rateUpdatedAt)}`, 320, 138);
+
+                    // 分割细虚线
+                    ctx.strokeStyle = '#E2DFD6';
+                    ctx.setLineDash([4, 4]);
+                    ctx.beginPath();
+                    ctx.moveTo(70, 165);
+                    ctx.lineTo(570, 165);
+                    ctx.stroke();
+                    ctx.setLineDash([]);
+
+                    // 明细列
                     ctx.textAlign = 'left';
-                    ctx.fillText('已选档位明细', 90, 195);
+                    ctx.fillStyle = '#78716C';
+                    ctx.font = '12px -apple-system, sans-serif';
+                    ctx.fillText('档位项目', 70, 195);
+                    ctx.textAlign = 'right';
+                    ctx.fillText('数量与折合', 570, 195);
 
-                    let startY = 240;
+                    let itemY = 230;
                     items.forEach(item => {
-                        ctx.fillStyle = '#ffffff';
-                        ctx.font = 'bold 20px sans-serif';
-                        const nameStr = payMode === 'euro' ? `${item.coins.toLocaleString()} 金币` : `${item.name} (${item.coins.toLocaleString()} 币)`;
-                        ctx.fillText(nameStr, 90, startY);
-
-                        ctx.fillStyle = '#94a3b8';
-                        ctx.font = '16px sans-serif';
-                        ctx.fillText(`数量: ×${item.qty}`, 420, startY);
-
-                        const itemJpyPrice = (item.jpy ?? item.yen ?? 0) * item.qty;
+                        ctx.textAlign = 'left';
+                        ctx.fillStyle = '#292524';
+                        ctx.font = '500 15px -apple-system, sans-serif';
+                        const name = payMode === 'euro' ? `${item.coins.toLocaleString()} 金币` : item.name;
+                        ctx.fillText(name, 70, itemY);
 
                         ctx.textAlign = 'right';
-                        ctx.fillStyle = '#ef4444';
-                        ctx.font = 'bold 18px sans-serif';
-                        const jpyText = `JP¥${itemJpyPrice.toLocaleString()}`;
-                        ctx.fillText(jpyText, 710, startY - (payMode === 'euro' ? 8 : 0));
-
-                        if (payMode === 'euro') {
-                            ctx.fillStyle = '#818cf8';
-                            ctx.font = '13px sans-serif';
-                            ctx.fillText(`≈ €${(item.rawEur * item.qty).toFixed(2)}`, 710, startY + 14);
-                        }
-
-                        ctx.textAlign = 'left';
-                        startY += 60;
+                        ctx.fillStyle = '#1C1917';
+                        ctx.font = '600 15px "Newsreader", serif';
+                        const jpyPrice = (item.jpy ?? item.yen ?? 0) * item.qty;
+                        ctx.fillText(`×${item.qty}   JP¥${jpyPrice.toLocaleString()}`, 570, itemY);
+                        itemY += 44;
                     });
 
-                    const resultY = 180 + cardHeight;
-                    ctx.fillStyle = '#0f172a';
+                    // 结果票根区
+                    const receiptY = itemY + 20;
+                    ctx.fillStyle = '#F9F8F5';
                     ctx.beginPath();
-                    ctx.roundRect(60, resultY, 680, extraHeight, 16);
+                    ctx.roundRect(70, receiptY, 500, 170, 12);
                     ctx.fill();
 
-                    ctx.fillStyle = '#94a3b8';
-                    ctx.font = '18px sans-serif';
+                    const posterRmb = payMode === 'euro' ? euroTotalRmb : packTotalCny;
+                    const posterCoins = payMode === 'euro' ? euroTotal.coins : packTotal.coins;
+
                     ctx.textAlign = 'center';
-                    ctx.fillText(euroSettleMode === 'exact' && payMode === 'euro' ? '纯消耗 1,000 金币折合人民币' : '每 1,000 金币折合人民币', 400, resultY + 45);
+                    ctx.fillStyle = '#78716C';
+                    ctx.font = '12px -apple-system, sans-serif';
+                    ctx.fillText('预计折合支付', 320, receiptY + 36);
 
-                    ctx.fillStyle = '#fbbf24';
-                    ctx.font = 'bold 50px sans-serif';
-                    ctx.fillText(`CN¥ ${heroPerK.toFixed(2)}`, 400, resultY + 105);
+                    ctx.fillStyle = '#1C1917';
+                    ctx.font = '600 40px "Newsreader", serif';
+                    ctx.fillText(`CN¥ ${posterRmb.toFixed(2)}`, 320, receiptY + 84);
 
-                    ctx.fillStyle = '#cbd5e1';
-                    ctx.font = '15px sans-serif';
-                    if (payMode === 'euro') {
-                        if (euroSettleMode === 'roundUp') {
-                            ctx.fillText(`需付 JP¥${euroTotal.yen.toLocaleString()}  →  理论 €${euroRawTotalEur.toFixed(2)}  →  买卡 €${euroSettleEur}`, 400, resultY + 150);
-                            ctx.fillStyle = '#a5b4fc';
-                            ctx.fillText(`实际购卡支出 ≈ CN¥${euroTotalRmb.toFixed(2)} | 余额卡内结余 €${euroRemainderEur.toFixed(2)} (≈CN¥${euroRemainderRmb.toFixed(2)})`, 400, resultY + 178);
-                        } else {
-                            ctx.fillText(`需付 JP¥${euroTotal.yen.toLocaleString()}  →  实际纯消耗折合 €${euroRawTotalEur.toFixed(2)}`, 400, resultY + 150);
-                            ctx.fillStyle = '#a5b4fc';
-                            ctx.fillText(`纯消耗折合 ≈ CN¥${euroTotalRmb.toFixed(2)} (满€${euroSettleEur}后仍保留结余 €${euroRemainderEur.toFixed(2)})`, 400, resultY + 178);
-                        }
-                    } else {
-                        ctx.fillText(`需付 JP¥${packTotal.jpy.toLocaleString()}  ≈  实际 CN¥${packTotalCny.toFixed(2)}`, 400, resultY + 158);
+                    ctx.fillStyle = '#57534E';
+                    ctx.font = '14px -apple-system, sans-serif';
+                    ctx.fillText(`获得 ${posterCoins.toLocaleString()} 金币 · 每千币约 ¥${heroPerK.toFixed(2)}`, 320, receiptY + 120);
+
+                    if (payMode === 'euro' && euroSettleMode === 'roundUp') {
+                        ctx.fillStyle = '#A8A29E';
+                        ctx.font = '11px -apple-system, sans-serif';
+                        ctx.fillText(`内含卡内结余 €${euroRemainderEur.toFixed(2)}（约 CN¥${euroRemainderRmb.toFixed(2)}）`, 320, receiptY + 144);
                     }
 
-                    ctx.fillStyle = '#6366f1';
-                    ctx.font = '14px sans-serif';
-                    ctx.fillText('by guiqulaixi  •  eFootball 比价小助手', 400, resultY + extraHeight + 35);
+                    // 尾部刊记（Colophon）
+                    ctx.textAlign = 'center';
+                    ctx.fillStyle = '#A8A29E';
+                    ctx.font = '11px -apple-system, sans-serif';
+                    ctx.fillText('记录人 · guiqulaixi  |  理性游玩，清醒自律', 320, totalHeight - 62);
 
                     const dataUrl = canvas.toDataURL('image/png');
                     const link = document.createElement('a');
-                    link.download = `eFootball-比价单-${Date.now()}.png`;
+                    link.download = `eFootball-筹划单-${Date.now()}.png`;
                     link.href = dataUrl;
                     link.click();
-                    showToast('📸 美化版海报已生成并下载！');
+                    showToast('已生成典雅票据卡片');
                 };
 
-                return e('div', { className: 'app-container' },
-                    e('header', null,
-                        e('div', { className: 'title-area' },
-                            e('h1', null, '⚽ eFootball 金币比价'),
-                            e('div', { className: 'subtitle' }, payMode === 'yen' ? '日服官方特惠 · 实时折算' : '欧元卡商店 · 实时折算')
-                        ),
-                        e('button', {
-                            className: 'theme-toggle-btn',
-                            title: theme === 'light' ? '切换为黑夜模式' : '切换为白天模式',
-                            onClick: () => setTheme(theme === 'light' ? 'dark' : 'light')
-                        }, theme === 'light' ? '🌙' : '🌞')
-                    ),
-
-                    e('div', { className: 'desktop-layout' },
-                        e('div', { className: 'desktop-left-panel' },
-                            e('div', { className: 'tab-bar' },
-                                e('button', { className: 'tab-btn ' + (payMode === 'euro' ? 'active' : ''), onClick: () => setPayMode('euro') }, '💳 欧元卡'),
-                                e('button', { className: 'tab-btn ' + (payMode === 'yen' ? 'active' : ''), onClick: () => setPayMode('yen') }, '🎌 日元直购')
+                return e(F, null,
+                    e('div', { className: 'editorial-wrapper' },
+                        e('header', { className: 'book-header' },
+                            e('div', { className: 'book-title-group' },
+                                e('h1', null, 'eFootball 充值筹划'),
+                                e('div', { className: 'sub' }, payMode === 'yen' ? '日服官方特惠 · 纯净核算' : '欧区礼品卡 · 汇率与结余比对')
                             ),
-
-                            e('div', { className: 'rate-banner' },
-                                e('span', { className: 'label' }, payMode === 'euro' ? '💱 汇率 (JPY→EUR)' : '💱 汇率 (JPY→CNY)'),
-                                e('span', { className: 'value' }, payMode === 'euro' ? `1 EUR ≈ ${(1 / eurRateForCalc).toFixed(1)} 日元` : `100 日元 ≈ CN¥${(cnyRate * 100).toFixed(2)}`),
-                                e('span', { className: 'rate-status-chip' }, rateStatus === 'live' ? '实时汇率' : '缓存汇率'),
-                                e('button', { className: 'refresh-btn', onClick: fetchRate, disabled: loading }, loading ? '刷新中…' : '刷新')
-                            ),
-
-                            payMode === 'euro' ? e('div', { className: 'card' },
-                                e('span', { className: 'label' }, '💳 欧元卡档位（点击多选，显示理论欧元）'),
-                                e('div', { className: 'pack-list' },
-                                    euroPackList.map(p => {
-                                        const isSel = p.qty > 0;
-                                        return e('div', {
-                                            key: p.id,
-                                            className: 'pack-item ' + (isSel ? 'selected' : ''),
-                                            onClick: () => setEuroPackQty(prev => ({ ...prev, [p.id]: (prev[p.id] || 0) > 0 ? 0 : 1 }))
-                                        },
-                                            e('div', { className: 'pack-row' },
-                                                e('div', { className: 'check' }, isSel ? '✓' : ''),
-                                                e('div', { className: 'pack-main' },
-                                                    e('div', { className: 'pack-name' }, `${p.coins.toLocaleString()} 金币`),
-                                                    e('div', { className: 'pack-meta' }, `理论折合: €${p.rawEur.toFixed(2)}`)
-                                                ),
-                                                e('div', { className: 'pack-price' },
-                                                    e('div', { className: 'jpy' }, `JP¥${p.yen.toLocaleString()}`),
-                                                    e('div', { className: 'eur' }, `≈ €${p.rawEur.toFixed(2)}`),
-                                                    e('div', { className: 'per' }, `≈CN¥${p.cnyPerK.toFixed(0)}/千币`)
-                                                )
-                                            ),
-                                            isSel ? e('div', { className: 'qty-row', onClick: (ev) => ev.stopPropagation() },
-                                                e('span', { className: 'qty-label' }, '购买份数'),
-                                                e('button', { onClick: () => setEuroPackQty(prev => ({ ...prev, [p.id]: Math.max(1, prev[p.id] - 1) })), disabled: p.qty <= 1 }, '−'),
-                                                e('span', { className: 'qty-val' }, `×${p.qty}`),
-                                                e('button', { onClick: () => setEuroPackQty(prev => ({ ...prev, [p.id]: (prev[p.id] || 0) + 1 })) }, '+'),
-                                                e('span', { className: 'qty-sub' }, `小计 JP¥${(p.yen * p.qty).toLocaleString()} (≈€${(p.rawEur * p.qty).toFixed(2)})`)
-                                            ) : null
-                                        );
-                                    })
-                                )
-                            ) : null,
-
-                            payMode === 'euro' ? e('div', { className: 'card' },
-                                e('span', { className: 'label' }, '💳 淘宝折算率'),
-                                e('div', { className: 'input-group' },
-                                    e('input', {
-                                        type: 'text',
-                                        inputMode: 'decimal',
-                                        value: cnyPer10Eur,
-                                        onChange: (ev) => setCnyPer10Eur(ev.target.value),
-                                        placeholder: '60'
-                                    }),
-                                    e('span', { className: 'unit-label' }, 'CN¥ / 10€')
-                                )
-                            ) : null,
-
-                            payMode === 'euro' ? e('div', { className: 'card' },
-                                e('span', { className: 'label' }, '⚙️ 欧元卡结算计算逻辑'),
-                                e('div', { className: 'tab-bar', style: { marginBottom: 0 } },
-                                    e('button', {
-                                        className: 'tab-btn ' + (euroSettleMode === 'roundUp' ? 'active' : ''),
-                                        onClick: () => setEuroSettleMode('roundUp'),
-                                        style: { fontSize: '13px' }
-                                    }, '整10欧卡结算 (含结余)'),
-                                    e('button', {
-                                        className: 'tab-btn ' + (euroSettleMode === 'exact' ? 'active' : ''),
-                                        onClick: () => setEuroSettleMode('exact'),
-                                        style: { fontSize: '13px' }
-                                    }, '按纯消耗结算 (扣除结余)')
-                                )
-                            ) : null,
-
-                            payMode === 'yen' ? e('div', { className: 'card' },
-                                e('span', { className: 'label' }, '🎌 日服特惠档位'),
-                                e('div', { className: 'pack-list' },
-                                    packList.map(p => {
-                                        const isSel = p.qty > 0;
-                                        return e('div', {
-                                            key: p.id,
-                                            className: 'pack-item ' + (isSel ? 'selected' : ''),
-                                            onClick: () => setPackQty(prev => ({ ...prev, [p.id]: (prev[p.id] || 0) > 0 ? 0 : 1 }))
-                                        },
-                                            e('div', { className: 'pack-row' },
-                                                e('div', { className: 'check' }, isSel ? '✓' : ''),
-                                                e('div', { className: 'pack-main' },
-                                                    e('div', { className: 'pack-name' },
-                                                        e('span', { className: 'pack-badge' }, 'SALE'),
-                                                        p.name,
-                                                        p.id === 'c7300' ? e('span', { className: 'pack-badge best-badge' }, '最划算') : null
-                                                    ),
-                                                    e('div', { className: 'pack-meta' }, `${p.coins.toLocaleString()} 金币 · 限购 ${p.maxQty} 次`)
-                                                ),
-                                                e('div', { className: 'pack-price' },
-                                                    e('div', { className: 'jpy' }, `JP¥${p.jpy.toLocaleString()}`),
-                                                    e('div', { className: 'per' }, `≈CN¥${p.cnyPerK.toFixed(0)}/千币`)
-                                                )
-                                            ),
-                                            (isSel && p.maxQty > 1) ? e('div', { className: 'qty-row', onClick: (ev) => ev.stopPropagation() },
-                                                e('span', { className: 'qty-label' }, `购买份数 (最多${p.maxQty})`),
-                                                e('button', { onClick: () => setPackQty(prev => ({ ...prev, [p.id]: Math.max(1, prev[p.id] - 1) })), disabled: p.qty <= 1 }, '−'),
-                                                e('span', { className: 'qty-val' }, `×${p.qty}`),
-                                                e('button', { onClick: () => setPackQty(prev => ({ ...prev, [p.id]: Math.min(p.maxQty, prev[p.id] + 1) })), disabled: p.qty >= p.maxQty }, '+'),
-                                                e('span', { className: 'qty-sub' }, `小计 JP¥${(p.jpy * p.qty).toLocaleString()}`)
-                                            ) : null
-                                        );
-                                    })
-                                )
-                            ) : null
+                            e('button', {
+                                className: 'theme-btn',
+                                onClick: () => setTheme(theme === 'light' ? 'dark' : 'light')
+                            }, theme === 'light' ? '夜间沉浸' : '温润日光')
                         ),
 
-                        e('div', { className: 'desktop-right-panel' },
-                            e('div', { className: 'result-box' },
-                                e('span', { className: 'label' }, euroSettleMode === 'exact' && payMode === 'euro' ? '💰 纯消耗 1,000 金币折合人民币' : '💰 每 1,000 金币折合人民币'),
-                                e('div', { className: 'result-single' },
-                                    noSelection
-                                        ? e('span', { style: { fontSize: '20px', color: '#94a3b8' } }, '请先选择档位')
-                                        : e(F, null, e('span', { className: 'currency' }, 'CN¥'), heroPerK.toFixed(2))
+                        e('div', { className: 'book-layout' },
+                            e('div', { className: 'book-left-panel' },
+                                e('div', { className: 'segmented-nav' },
+                                    e('button', {
+                                        className: 'segmented-btn ' + (payMode === 'euro' ? 'active' : ''),
+                                        onClick: () => setPayMode('euro')
+                                    }, '欧元礼品卡渠道'),
+                                    e('button', {
+                                        className: 'segmented-btn ' + (payMode === 'yen' ? 'active' : ''),
+                                        onClick: () => setPayMode('yen')
+                                    }, '日元直购渠道')
                                 ),
-                                payMode === 'euro' ? e(F, null,
-                                    e('div', { className: 'detail-row' }, e('span', null, '🪙 合计 ', e('span', { className: 'highlight' }, euroTotal.coins.toLocaleString()), ' 金币')),
-                                    e('div', { className: 'detail-row' }, e('span', null, '💶 需付 JP¥', e('span', { className: 'highlight' }, euroTotal.yen.toLocaleString()), ' → 理论 €', e('span', { className: 'highlight' }, euroRawTotalEur.toFixed(2)), ' → 充值 €', e('span', { className: 'highlight' }, euroSettleEur))),
-                                    e('div', { className: 'detail-row' }, e('span', null, euroSettleMode === 'roundUp' ? '💳 实际购卡成本 ≈ ' : '💳 纯消耗成本折合 ≈ ', e('span', { className: 'highlight' }, 'CN¥' + euroTotalRmb.toFixed(2)))),
-                                    euroRemainderEur > 0 ? e('div', { className: 'detail-row', style: { color: '#a5b4fc' } }, e('span', null, '🎁 账户/卡内结余：€', e('span', { className: 'highlight' }, euroRemainderEur.toFixed(2)), ` (≈CN¥${euroRemainderRmb.toFixed(2)})`)) : null
-                                ) : e(F, null,
-                                    e('div', { className: 'detail-row' }, e('span', null, '🪙 合计 ', e('span', { className: 'highlight' }, packTotal.coins.toLocaleString()), ' 金币')),
-                                    e('div', { className: 'detail-row' }, e('span', null, '💴 需付 JP¥', e('span', { className: 'highlight' }, packTotal.jpy.toLocaleString()), ' ≈ ', e('span', { className: 'highlight' }, 'CN¥' + packTotalCny.toFixed(2))))
+
+                                e('div', { className: 'rate-bar' },
+                                    e('div', { className: 'rate-meta' },
+                                        e('span', { className: 'title' }, payMode === 'euro' ? '实时牌价 (JPY / EUR)' : '实时牌价 (JPY / CNY)'),
+                                        e('span', { className: 'num' }, payMode === 'euro' ? `1 EUR ≈ ${(1 / eurRateForCalc).toFixed(1)} JPY` : `100 JPY ≈ CN¥ ${(cnyRate * 100).toFixed(2)}`)
+                                    ),
+                                    e('button', { className: 'rate-refresh-btn', onClick: fetchRate, disabled: loading }, loading ? '获取中…' : '校准汇率')
+                                ),
+
+                                e('div', { className: 'comparison-slate' },
+                                    e('div', { className: 'comp-grid' },
+                                        e('div', { className: 'comp-item' },
+                                            e('div', { className: 'comp-title' },
+                                                '日元官方直购',
+                                                (yenCheaper && euroCostOk) ? e('span', { className: 'comp-tag' }, '更优') : null
+                                            ),
+                                            yenCostOk
+                                                ? e('div', { className: 'comp-num' }, bestYen.cnyPerK.toFixed(1), e('span', null, '元 / 千币'))
+                                                : e('div', { className: 'comp-num' }, '—'),
+                                            e('div', { className: 'comp-desc' }, bestYen ? `${bestYen.name}` : '')
+                                        ),
+                                        e('div', { className: 'comp-item' },
+                                            e('div', { className: 'comp-title' },
+                                                '欧元礼品卡',
+                                                (!yenCheaper && euroCostOk) ? e('span', { className: 'comp-tag' }, '更优') : null
+                                            ),
+                                            euroCostOk
+                                                ? e('div', { className: 'comp-num' }, bestEuro.cost.toFixed(1), e('span', null, '元 / 千币'))
+                                                : e('div', { className: 'comp-num', style: { color: 'var(--text-tertiary)' } }, '待设卡价'),
+                                            e('div', { className: 'comp-desc' }, euroCostOk ? `${bestEuro.pack.coins.toLocaleString()} 档位` : '')
+                                        )
+                                    ),
+                                    (yenCostOk && euroCostOk)
+                                        ? e('div', { className: 'comp-summary' },
+                                            `${yenCheaper ? '日元直购' : '欧元卡'} 单币成本低约 `,
+                                            e('em', null, compareDelta.toFixed(1)),
+                                            ` 元/千币（差幅 ${compareDeltaPct.toFixed(0)}%）`
+                                        )
+                                        : null
+                                ),
+
+                                payMode === 'euro' ? e('div', { className: 'chapter-box' },
+                                    e('div', { className: 'chapter-header' },
+                                        e('span', { className: 'chapter-title' }, '购卡参数与口径'),
+                                        e('span', { className: 'chapter-note' }, '淘宝 / 平台行情')
+                                    ),
+                                    e('div', { className: 'editorial-input-group' },
+                                        e('input', {
+                                            type: 'text',
+                                            inputMode: 'decimal',
+                                            value: cnyPer10Eur,
+                                            onChange: (ev) => setCnyPer10Eur(ev.target.value),
+                                            placeholder: '60'
+                                        }),
+                                        e('span', { className: 'unit' }, 'CN¥ / 10€ 卡')
+                                    ),
+                                    e('div', { className: 'segmented-nav', style: { marginTop: '12px', marginBottom: 0 } },
+                                        e('button', {
+                                            className: 'segmented-btn ' + (euroSettleMode === 'roundUp' ? 'active' : ''),
+                                            onClick: () => setEuroSettleMode('roundUp')
+                                        }, '按整卡核算 (含余额)'),
+                                        e('button', {
+                                            className: 'segmented-btn ' + (euroSettleMode === 'exact' ? 'active' : ''),
+                                            onClick: () => setEuroSettleMode('exact')
+                                        }, '按纯消耗核算')
+                                    )
+                                ) : null,
+
+                                e('div', { className: 'chapter-box' },
+                                    e('div', { className: 'chapter-header' },
+                                        e('span', { className: 'chapter-title' }, payMode === 'euro' ? 'Steam 欧元常驻档位' : '日服官方限时特惠'),
+                                        e('span', { className: 'chapter-note' }, '勾选组合')
+                                    ),
+                                    e('div', { className: 'pack-grid' },
+                                        (payMode === 'euro' ? euroPackList : packList).map(p => {
+                                            const isSel = p.qty > 0;
+                                            const isBest = payMode === 'yen' && p.id === 'c7300';
+                                            return e('div', {
+                                                key: p.id,
+                                                className: 'pack-row-card ' + (isSel ? 'selected' : ''),
+                                                onClick: () => {
+                                                    if (payMode === 'euro') {
+                                                        setEuroPackQty(prev => ({ ...prev, [p.id]: (prev[p.id] || 0) > 0 ? 0 : 1 }));
+                                                    } else {
+                                                        setPackQty(prev => ({ ...prev, [p.id]: (prev[p.id] || 0) > 0 ? 0 : 1 }));
+                                                    }
+                                                }
+                                            },
+                                                e('div', { className: 'pack-content' },
+                                                    e('div', { className: 'pack-primary' },
+                                                        e('div', { className: 'pack-marker' }, '✓'),
+                                                        e('div', { className: 'pack-info' },
+                                                            e('div', { className: 'name' },
+                                                                payMode === 'euro' ? `${p.coins.toLocaleString()} 金币` : p.name,
+                                                                isBest ? e('span', { className: 'badge-subtle badge-best' }, '最优档') : null
+                                                            ),
+                                                            e('div', { className: 'meta' },
+                                                                payMode === 'euro'
+                                                                    ? `折合 €${p.rawEur.toFixed(2)}`
+                                                                    : `${p.coins.toLocaleString()} 币 · 限购 ${p.maxQty} 次`
+                                                            )
+                                                        )
+                                                    ),
+                                                    e('div', { className: 'pack-valuation' },
+                                                        e('div', { className: 'primary-price' }, `JP¥ ${(p.jpy ?? p.yen).toLocaleString()}`),
+                                                        e('div', { className: 'sub-price' }, `约 ¥${p.cnyPerK.toFixed(0)} / 千币`)
+                                                    )
+                                                ),
+                                                (isSel && (payMode === 'euro' || p.maxQty > 1)) ? e('div', {
+                                                    className: 'stepper-belt',
+                                                    onClick: (ev) => ev.stopPropagation()
+                                                },
+                                                    e('span', { style: { fontSize: '12px', color: 'var(--text-tertiary)', marginRight: 'auto' } }, '选择数量'),
+                                                    e('button', {
+                                                        className: 'stepper-btn',
+                                                        onClick: () => {
+                                                            const setter = payMode === 'euro' ? setEuroPackQty : setPackQty;
+                                                            setter(prev => ({ ...prev, [p.id]: Math.max(1, prev[p.id] - 1) }));
+                                                        },
+                                                        disabled: p.qty <= 1
+                                                    }, '−'),
+                                                    e('span', { className: 'stepper-val' }, p.qty),
+                                                    e('button', {
+                                                        className: 'stepper-btn',
+                                                        onClick: () => {
+                                                            const setter = payMode === 'euro' ? setEuroPackQty : setPackQty;
+                                                            const max = payMode === 'euro' ? 99 : p.maxQty;
+                                                            setter(prev => ({ ...prev, [p.id]: Math.min(max, (prev[p.id] || 0) + 1) }));
+                                                        },
+                                                        disabled: payMode === 'yen' && p.qty >= p.maxQty
+                                                    }, '+')
+                                                ) : null
+                                            );
+                                        })
+                                    )
                                 )
                             ),
 
-                            e('div', { className: 'action-row' },
-                                e('button', { className: 'action-btn', onClick: handleCopyText }, '📋 复制文本'),
-                                e('button', { className: 'action-btn', onClick: handleGeneratePoster }, '📸 生成主题海报')
+                            e('div', { className: 'book-right-panel' },
+                                e('div', { className: 'receipt-card', ref: resultRef },
+                                    e('div', { className: 'receipt-stamp' }, 'MONOGRAPH RECEIPT · 核算单'),
+                                    e('div', { className: 'receipt-main-cost' },
+                                        noSelection
+                                            ? e('span', { style: { fontSize: '18px', color: 'var(--text-tertiary)' } }, '尚未勾选档位')
+                                            : e(F, null,
+                                                e('span', { className: 'curr' }, 'CN¥'),
+                                                e('span', { className: 'figure' }, (payMode === 'euro' ? euroTotalRmb : packTotalCny).toFixed(2))
+                                            )
+                                    ),
+                                    noSelection ? null : e('div', { className: 'receipt-coins-yield' },
+                                        '获赠金币总量：',
+                                        e('b', null, (payMode === 'euro' ? euroTotal.coins : packTotal.coins).toLocaleString()),
+                                        ' 币'
+                                    ),
+                                    noSelection ? null : e('div', { className: 'receipt-breakdown' },
+                                        e('div', { className: 'receipt-line' },
+                                            e('span', null, '单币成本'),
+                                            e('span', { className: 'val' }, `¥ ${heroPerK.toFixed(2)}`, e('small', null, '/ 千币'))
+                                        ),
+                                        payMode === 'euro' ? e(F, null,
+                                            e('div', { className: 'receipt-line' },
+                                                e('span', null, '应购面值'),
+                                                e('span', { className: 'val' }, `€ ${euroSettleEur}`, e('small', null, `≈ CN¥ ${((euroSettleEur / 10) * validCnyPer10Eur).toFixed(1)}`))
+                                            ),
+                                            euroRemainderEur > 0 ? e('div', { className: 'receipt-line' },
+                                                e('span', null, '账户结余'),
+                                                e('span', { className: 'val' }, `€ ${euroRemainderEur.toFixed(2)}`, e('small', null, `(留存下期)`))
+                                            ) : null
+                                        ) : e('div', { className: 'receipt-line' },
+                                            e('span', null, '日元票面总额'),
+                                            e('span', { className: 'val' }, `JP¥ ${packTotal.jpy.toLocaleString()}`)
+                                        )
+                                    )
+                                ),
+
+                                e('div', { className: 'editorial-actions' },
+                                    e('button', { className: 'action-subtle-btn', onClick: handleCopyText }, '复制筹划文本'),
+                                    e('button', { className: 'action-subtle-btn', onClick: handleGeneratePoster }, '生成书签票据')
+                                )
                             )
+                        ),
+
+                        e('footer', { className: 'book-colophon' },
+                            `档位校验于 ${PACK_DATA_VERIFIED_AT} · 官方价格政策以 Steam 与 Konami 公告为准`,
+                            e('br'),
+                            `Crafted by guiqulaixi`
                         )
                     ),
 
-                    e('div', { className: 'footnote' },
-                        `档位核对日期：${PACK_DATA_VERIFIED_AT} · 实际请以官方为准`,
-                        e('br'),
-                        e('span', { className: 'byline' }, 'by guiqulaixi')
+                    e('div', { className: 'bottom-float-bar' + (barHidden ? ' hidden' : '') },
+                        e('div', null,
+                            e('div', { className: 'bf-label' }, '每千币均价'),
+                            noSelection
+                                ? e('div', { className: 'bf-val', style: { fontSize: '15px', color: 'var(--text-tertiary)' } }, '请选择')
+                                : e('div', { className: 'bf-val' }, `¥ ${heroPerK.toFixed(2)}`)
+                        ),
+                        e('div', { className: 'bf-btns' },
+                            e('button', { className: 'bf-btn', onClick: handleCopyText }, '复制'),
+                            e('button', { className: 'bf-btn', onClick: handleGeneratePoster }, '制图')
+                        )
                     ),
 
-                    e('div', { className: 'toast ' + (toastMsg ? 'show' : '') }, toastMsg)
+                    e('div', { className: 'toast-pill ' + (toastMsg ? 'visible' : '') }, toastMsg)
                 );
             }
 
